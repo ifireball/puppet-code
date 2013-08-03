@@ -1,9 +1,4 @@
-[![Build Status](https://travis-ci.org/cprice-puppet/puppetlabs-inifile.png?branch=master)](https://travis-ci.org/cprice-puppet/puppetlabs-inifile)
-
-
-# NOTE: this module has been moved to the [Puppet Labs](https://github.com/puppetlabs/puppetlabs-inifile) namespace.
-
-------------------------------------------------------------------------------------------------------------
+[![Build Status](https://travis-ci.org/puppetlabs/puppetlabs-inifile.png?branch=master)](https://travis-ci.org/cprice-puppet/puppetlabs-inifile)
 
 # INI-file module #
 

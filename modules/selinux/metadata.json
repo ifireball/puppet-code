@@ -1,0 +1,28 @@
+{
+  "name": "thias-selinux",
+  "version": "0.1.2",
+  "source": "git://github.com/thias/puppet-selinux",
+  "author": "Matthias Saou",
+  "license": "Apache 2.0",
+  "summary": "SELinux module",
+  "description": "Easily manage SELinux audit2allow rules",
+  "project_page": "https://github.com/thias/puppet-selinux",
+  "dependencies": [
+
+  ],
+  "types": [
+
+  ],
+  "checksums": {
+    "ChangeLog": "70767c2b2af5d7469ffa786c1aa5815b",
+    "LICENSE": "63f96c99cc44c3d16af914ff2568e0a4",
+    "Modulefile": "e6232c35c1da5953377e7dd79c831240",
+    "README.md": "9203de7c92d62e3b47773be70518ee1e",
+    "files/messages.nrpe": "14268bd03f7e0e2c33daf148dde09d38",
+    "manifests/audit2allow.pp": "96e06419daaafb040f1387c364331bef",
+    "manifests/dircontext.pp": "23ffddb491cf6491661b8406a62d012e",
+    "manifests/init.pp": "7e722988f5d284a0954a7a747638aa4e",
+    "tests/audit2allow.pp": "bfde1b78b3810bd1b3ee5f41ec685477",
+    "tests/init.pp": "63e3318bc62e71c064f32c13f7f656ad"
+  }
+}
