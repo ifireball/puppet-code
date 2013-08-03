@@ -2,7 +2,7 @@
 #
 # This class configures the Puppetmastrer server in this site.
 #
-class site::puppet::master {
+class site::puppet::master inherits site::puppet::agent {
   class { 'puppetdb':
     database => 'embedded',
   }
@@ -16,6 +16,10 @@ class site::puppet::master {
     storeconfigs_backend => 'puppetdb',
     require => Class['puppetdb'],
     extraopts => $extraopts,
+  }
+  class { 'puppetdb::master::config':
+    manage_storeconfigs => false,
+    manage_report_processor => false,
   }
 }
 
