@@ -1,0 +1,36 @@
+{
+  "project_page": "https://github.com/thias/puppet-puppet",
+  "license": "Apache 2.0",
+  "source": "git://github.com/thias/puppet-puppet",
+  "checksums": {
+    "tests/master.pp": "541e8878cb643fd718eeba2d3db16a26",
+    "lib/facter/puppetmaster.rb": "764dde9ca275b98beafcc4ca6af21f6b",
+    "files/messages.puppetpassenger": "68b958ac364c67bc659add726335c57d",
+    "manifests/common.pp": "7de55825927e63129d972ad1534f8798",
+    "tests/agent.pp": "a9287af9b506b4210b3a1f14ad6cc6e6",
+    "files/config.ru": "2a11437b13dcfde06a45f034864eee28",
+    "Modulefile": "f8e9361b6f89a83527de528850ec339f",
+    "templates/sysconfig-puppet.erb": "0356f76310eac22617edc417f72845e8",
+    "manifests/master.pp": "11bfe3e4e80f796dcf8b98fe39d18ce4",
+    "manifests/params.pp": "48a92fd6e09eee45d97ddadc3660418e",
+    "manifests/agent.pp": "f598cc73ccd7867b506cb2d90acb5f53",
+    "README.md": "2320397836ad1d4d0a56bdc3d9f6ed64",
+    "files/messages.puppetservice": "6dd718b45d1f10f3c3a738193a82bf0a",
+    "ChangeLog": "60467790919f3bafe9d48ea98970663a",
+    "templates/repuppet.erb": "af88e3e18db2608d0dec6d871dca7fa6",
+    "templates/httpd-puppet.conf.erb": "48dc3b9369303b7a2e0b7bb60a1e7c38",
+    "templates/puppetagent.conf.erb": "f1f39f4bd7edb7fee3f0b4f61d60701f",
+    "templates/puppetmaster.conf.erb": "b2369223aa6e19bd23d01e12947c9aa6"
+  },
+  "description": "Install configure and enable puppet masters and puppet agent nodes.",
+  "version": "0.5.3",
+  "types": [
+
+  ],
+  "summary": "Puppet module",
+  "name": "thias-puppet",
+  "author": "Matthias Saou",
+  "dependencies": [
+
+  ]
+}

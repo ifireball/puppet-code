@@ -1,0 +1,101 @@
+{
+  "project_page": "https://github.com/puppetlabs/puppetlabs-puppetdb",
+  "summary": "PuppetDB resource types",
+  "checksums": {
+    "manifests/server/database_ini.pp": "42f6e288dd30c55e7c578ff35633fbbe",
+    "CHANGELOG": "8b85c45b1c1fffd120a44cc886d2b5ac",
+    "Gemfile": "7da7c2e85c77ae92821eaaf6f9788706",
+    "manifests/master/config.pp": "3e833811e94f15dfa8cca9664345e379",
+    "manifests/params.pp": "be13cbd9cbbd9fb898097495e7bbc618",
+    "LICENSE": "7d98b8235fa3c0bbb61378a5936e3c34",
+    "manifests/database/postgresql.pp": "9f57ba246dc117d714cb4922cd3b3f24",
+    "puppetlabs-puppetdb-1.4.0.tar.gz": "992f5ce12ff80011dcfa81bdb600e535",
+    "tests/pe-puppetdb-postgres.pp": "3ba559f10d499c28cd75fce799c84856",
+    "manifests/server/validate_db.pp": "2cc0fee0d0187362078a4a3883604885",
+    "manifests/master/report_processor.pp": "953fede8db1d9cf0812ff5e361c49f01",
+    "Rakefile": "790f004b3a18453229b93c23935a4681",
+    "lib/puppet/provider/puppetdb_conn_validator/puppet_https.rb": "17c55730cd42c64fe959f12a87a96085",
+    "Modulefile": "65b9d8e468926f248eebed0ec7cdc2c4",
+    "files/routes.yaml": "779d47e8d0c320b10f8c31cd9838fca1",
+    "manifests/database/postgresql_db.pp": "889667ef05ef869fad08eeaf09902a5d",
+    "manifests/master/routes.pp": "5c262ea0ef5471c1cd21b9a8a061774c",
+    "manifests/init.pp": "97e05070bef63c0c5bf4be127f75f44e",
+    "manifests/server/jetty_ini.pp": "553b852e54c43a8b207460975b880a0c",
+    "manifests/master/puppetdb_conf.pp": "67fa117f25435e2da664bd54eac993b9",
+    "README.md": "d5d035069f26a869ad4fe57b2c898fda",
+    "lib/puppet/parser/functions/puppetdb_create_subsetting_resource_hash.rb": "61b6f5ebc352e9bff5a914a43a14dc22",
+    "tests/puppetdb-postgres-distributed.pp": "6830e21b1e3a9cbacc7bb46f0a6dcf39",
+    "tests/puppetdb-postgres-on-master-node.pp": "f6b95af27654b31c9ae144bf5e73fdf2",
+    "manifests/server/firewall.pp": "e4ab29667a1674a915111e5dd8af7d58",
+    "Gemfile.lock": "ebd7cba230abe27620f2d5520deeb836",
+    "lib/puppet/type/puppetdb_conn_validator.rb": "aa4846110f363047a8988f261378ec0e",
+    "lib/puppet/util/puppetdb_validator.rb": "87dfd3cde4a06f898d88b9fda35c7dce",
+    "tests/puppetdb-embeddeddb-on-master-node.pp": "6577db13bd0a58e5d8bd8e541c3a9ccc",
+    "manifests/server.pp": "30f8f096396d61591ba8fd711f4755e4",
+    "manifests/master/storeconfigs.pp": "aa53b7abfc7b8d0b7468af1caf68dbf9"
+  },
+  "source": "git://github.com/puppetlabs/puppetlabs-puppetdb.git",
+  "version": "1.5.0",
+  "types": [
+    {
+      "providers": [
+        {
+          "name": "puppet_https",
+          "doc": "A provider for the resource type `puppetdb_conn_validator`,\n        which validates the puppetdb connection by attempting an https\n        connection to the puppetdb server.  Uses the puppet SSL certificate\n        setup from the local puppet environment to authenticate."
+        }
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "doc": "An arbitrary name used as the identity of the resource."
+        },
+        {
+          "name": "puppetdb_server",
+          "doc": "The DNS name or IP address of the server where puppetdb should be running."
+        },
+        {
+          "name": "puppetdb_port",
+          "doc": "The port that the puppetdb server should be listening on."
+        },
+        {
+          "name": "use_ssl",
+          "doc": "Whether the connection will be attemped using https"
+        },
+        {
+          "name": "timeout",
+          "doc": "The max number of seconds that the validator should wait before giving up and deciding that puppetdb is not running; defaults to 15 seconds."
+        }
+      ],
+      "properties": [
+        {
+          "name": "ensure",
+          "doc": "The basic property that the resource should be in.  Valid values are `present`, `absent`."
+        }
+      ],
+      "name": "puppetdb_conn_validator",
+      "doc": "Verify that a connection can be successfully established between a node\n          and the puppetdb server.  Its primary use is as a precondition to\n          prevent configuration changes from being applied if the puppetdb\n          server cannot be reached, but it could potentially be used for other\n          purposes such as monitoring."
+    }
+  ],
+  "author": "Puppet Labs",
+  "dependencies": [
+    {
+      "version_requirement": ">= 0.10.3",
+      "name": "cprice404/inifile"
+    },
+    {
+      "version_requirement": "2.x",
+      "name": "puppetlabs/postgresql"
+    },
+    {
+      "version_requirement": ">= 0.0.4",
+      "name": "puppetlabs/firewall"
+    },
+    {
+      "version_requirement": ">= 2.2.0",
+      "name": "puppetlabs/stdlib"
+    }
+  ],
+  "description": "PuppetDB resource types",
+  "license": "ASL 2.0",
+  "name": "puppetlabs-puppetdb"
+}
