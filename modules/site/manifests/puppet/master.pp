@@ -11,6 +11,7 @@ class site::puppet::master inherits site::puppet::agent {
       'dns_alt_name' => "$hostname.local",
     }
   }
+  #class { 'site::passenger': }
   class { '::puppet::master':
     storeconfigs         => true,
     storeconfigs_backend => 'puppetdb',

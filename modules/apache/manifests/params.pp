@@ -47,7 +47,7 @@ class apache::params {
     $default_ssl_key      = '/etc/pki/tls/private/localhost.key'
     $ssl_certs_dir        = $distrelease ? {
       '5' => '/etc/pki/tls/certs',
-      '6' => '/etc/ssl/certs',
+      default => '/etc/ssl/certs',
     }
     $passenger_root       = '/usr/share/rubygems/gems/passenger-3.0.17'
     $passenger_ruby       = '/usr/bin/ruby'
@@ -58,7 +58,7 @@ class apache::params {
       'perl'       => 'mod_perl',
       'php5'       => $distrelease ? {
         '5' => 'php53',
-        '6' => 'php',
+        default => 'php',
       },
       'proxy_html' => 'mod_proxy_html',
       'python'     => 'mod_python',
