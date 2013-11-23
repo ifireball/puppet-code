@@ -1,0 +1,7 @@
+[<%= @name %>]
+name=<%= @description || @name %>
+baseurl=<%= @url %>
+<% if @key_url %>gpgkey=<%= @key_url %><% end %>
+enabled=<%= @enabled_num %>
+gpgcheck=<%= @keyverify_num %>
+
