@@ -3,6 +3,7 @@
 # This class configures the Puppetmastrer server in this site.
 #
 class site::puppet::master inherits site::puppet::agent {
+  include site::common
   class { 'puppetdb':
     database => 'embedded',
   }
