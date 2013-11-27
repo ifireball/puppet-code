@@ -1,0 +1,24 @@
+[submodule "modules/site/files/vim/pathogen"]
+	path = modules/site/files/vim/pathogen
+	url = https://github.com/tpope/vim-pathogen
+[submodule "modules/site/files/vim/bundle/vim-fugitive"]
+	path = modules/site/files/vim/bundle/vim-fugitive
+	url = https://github.com/tpope/vim-fugitive
+[submodule "modules/site/files/vim/bundle/vim-easymotion"]
+	path = modules/site/files/vim/bundle/vim-easymotion
+	url = https://github.com/Lokaltog/vim-easymotion
+[submodule "modules/site/files/vim/bundle/vim-sensible"]
+	path = modules/site/files/vim/bundle/vim-sensible
+	url = https://github.com/tpope/vim-sensible
+[submodule "modules/site/files/vim/bundle/nerdtree"]
+	path = modules/site/files/vim/bundle/nerdtree
+	url = https://github.com/scrooloose/nerdtree
+[submodule "modules/site/files/vim/bundle/vim-nerdtree-tabs"]
+	path = modules/site/files/vim/bundle/vim-nerdtree-tabs
+	url = https://github.com/jistr/vim-nerdtree-tabs
+[submodule "modules/site/files/vim/bundle/minibufexpl"]
+	path = modules/site/files/vim/bundle/minibufexpl
+	url = https://github.com/fholgado/minibufexpl.vim
+[submodule "modules/site/files/vim/bundle/supertab"]
+	path = modules/site/files/vim/bundle/supertab
+	url = https://github.com/ervandew/supertab
