@@ -1,0 +1,127 @@
+<%
+	require 'puppet'
+	require 'yaml'
+	require 'json'
+
+	include ERB::Util
+
+	report_file = '/home/ifireball/tmp/puppet/reports/puppetmaster.local/201401101432.yaml'
+	report_json = JSON[YAML.load_file(report_file).to_pson]
+%>
+<html>
+<head>
+	<title>Puppet Report for <%= h(report_json['host']) %></title>
+	<style type="text/css">
+		pre span.diff1 { color: red; }
+		pre span.diff2 { color: green; }
+		pre span.diffloc { font-weight: bold; }
+		div.resource_details { font-size: smaller; }
+	</style>
+</head>
+<body>
+	<h1>Puppet Report for <%= h(report_json['host']) %></h1>
+	<table class="summary">
+		<tr><td>Puppet Version:</td><td><%= report_json['puppet_version'] %></td></tr>
+		<tr><td>Environment:</td><td><%= report_json['environment'] %></td></tr>
+		<tr><td>Run Start:</td><td><%=
+		DateTime.iso8601(report_json['time']).strftime("%A, %b %-d, %Y, %H:%M:%S")
+		%></td></tr>
+		<tr><td>Status:</td><td><%=
+		if report_json['metrics']['resources']['values'].any? {|v| v[0] == 'failed' && v[2] > 0}
+			'Failed'
+		elsif report_json['metrics']['resources']['values'].any? {|v| v[0] == 'changed' && v[2] > 0}
+			'Changes Commited'
+		elsif report_json['metrics']['resources']['values'].any? {|v| v[0] == 'out_of_sync' && v[2] > 0}
+			'Changes Pending'
+		else
+			'No Change Needed'
+		end
+		%></td></tr>
+	</table>
+	<h2>Metrics</h2>
+	<% report_json['metrics'].values_at(*%w{resources time changes events}).compact.each do |metric| %>
+		<h3><%= metric['label'] %></h3>
+		<table class="metrics">
+			<% metric['values'].each do |name, label, value| %>
+				<tr><td><%= label %></td><td><%=
+				case metric['name']
+				when 'time' then "%.3f sec" % (value)
+				else value
+				end %></td></tr>
+			<% end %>
+		</table>
+	<% end %>
+	<h2>Log</h2>
+	<table class="log">
+		<head><tr><th>Time</th><th>Level</th><th>Message</th></tr></head>
+		<body>
+			<% report_json['logs'].each do |log| %>
+				<tr class="<%= log['level'] %>">
+					<td><%= DateTime.iso8601(log['time']).strftime("%H:%M:%S") %></td>
+					<td><%= log['level'] %></td>
+					<td><%= h((log['source'] == 'Puppet' ? '' : log['source'] + ': ')) %>
+					<% if log['message'] =~ /\A\n/ %>
+						<pre><% log['message'][1..-1].each_line do |l| %><span class="<%= 
+						case l
+						when /\A-/ then 'diff1'
+						when /\A\+/ then 'diff2'
+						when /\A@/ then 'diffloc'
+						else 'diff0'
+						end
+						%>"><%= h(l) %></span><% end %></pre>
+					<% else %>
+						<%= h(log['message']) %>
+					<% end %>
+					</td>
+				</tr>
+			<% end %>
+		</body>
+	</table>
+	<h2>Resources</h2>
+	<%
+		rs = report_json['resource_statuses'].values.sort_by! { |r| r['time'] }
+		res_lists = {
+		'Changed' => rs.select { |s| s['events'].any? {|e| e['status'] == 'success' } },
+		'Failed' => rs.select { |s| s['events'].any? {|e| e['status'] == 'failure' } },
+		'Skipped' => rs.select { |s| s['skipped'] },
+		'Pending Change' => rs.select { |s| s['events'].any? {|e| e['status'] == 'noop' } },
+		'Unchanged' => rs.select { |s| s['events'].empty? },
+		}.reject { |t,rl| rl.empty? }
+	%>
+	<% res_lists.each do |t,rl| %>
+		<h3><%= t %></h3>
+		<ul>
+			<% rl.each do |r| %>
+				<li><%= r['containment_path'].join('::') %>
+				<div class='resource_details'>
+					<% if r['file'] %>
+						Source: <a class="resouce_source"><%= h(r['file']) %> (<%= r['line'] %>)</a>
+					<% end %>
+					<% unless r['events'].empty? %>
+						<table class="resource_changes">
+							<caption>Changed Properties</caption>
+							<thead>
+								<tr>
+									<th>Property</th>
+									<th>Old Value</th>
+									<th>New Value</th>
+									<th>Change Status</th>
+								</tr>
+							</thead>
+							<tbody>
+								<% r['events'].each do |e| %>
+									<td><%= h(e['property']) %></td>
+									<td><%= h(e['previous_value']) %></td>
+									<td><%= h(e['desired_value']) %></td>
+									<td><%= e['status'].capitalize %></td>
+								<% end %>
+							</tbody>
+						</table>
+					<% end %>
+				</div>
+				</li>
+			<% end %>
+		</ul>
+	<% end %>
+</body>
+</html>
