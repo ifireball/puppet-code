@@ -17,27 +17,24 @@
 	<title>Puppet Report for <%= h(report_json['host']) %></title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link href="<%= hres('bootstrap/css/bootstrap.min.css') %>" rel="stylesheet">
-	<style type="text/css">
-		pre span.diff1 { color: red; }
-		pre span.diff2 { color: green; }
-		pre span.diffloc { font-weight: bold; }
-		div.resource_details { font-size: smaller; }
-		td.value { font-weight: bold; }
-	</style>
+	<link href="<%= hres('css/report.css') %>" rel="stylesheet">
 	<!--[if lt IE 9]>
 	<script src="<%= hres('js/html5shiv.js') %>"></script>
 	<script src="<%= hres('js/respond.min.js') %>"></script>
 	<![endif]-->
 </head>
 <body>
-	<div class="container">
+	<div class="page-container">
 	<div class="page-header">
 	<h1>Puppet Report for <%= h(report_json['host']) %></h1>
 	</div>
-	<div class="tab-content">
-	<div id="summary" class="tab-pane">
-	<h2 class="tab-head">Summary</h2>
-	<div class="table-responsive">
+	<div class="row">
+	<div class="col-sm-5 col-md-4 col-lg-3">
+	<div id="summary" class="panel panel-default">
+	<div class="panel-heading">
+		<h2 class="panel-title">Summary</h2>
+	</div>
+	<div class="panel-body">
 	<table class="table table-condensed summary">
 		<tr><td class='tlabel'>Host:</td><td class='value'><%= report_json['host'] %></td></tr>
 		<tr><td class='tlabel'>Puppet Version:</td><td class='value'><%= report_json['puppet_version'] %></td></tr>
@@ -59,13 +56,15 @@
 	</table>
 	</div>
 	</div>
-	<div id="metrics" class="tab-pane">
-	<h2 class="tab-head">Metrics</h2>
-	<div class="tab-content">
-	<% report_json['metrics'].values_at(*%w{resources time changes events}).compact.each do |metric| %>
+	<div id="metrics" class="panel panel-default">
+	<div class="panel-heading">
+		<h2 class="panel-title">Metrics</h2>
+	</div>
+	<div class="panel-body">
+	<div class="pill-content-marker">
+	<% report_json['metrics'].values_at(*%w{resources time events}).compact.each do |metric| %>
 		<div class="tab-pane" id="metrics-<%= metric['name'] %>">
 		<h3 class="tab-head"><%= metric['label'] %></h3>
-		<div class="table-responsive">
 		<table class="metrics table table-condensed">
 			<% metric['values'].each do |name, label, value| %>
 				<tr><td class='tlabel'><%= label %></td><td class='value'><%=
@@ -76,10 +75,13 @@
 			<% end %>
 		</table>
 		</div>
-		</div>
 	<% end %>
 	</div>
 	</div>
+	</div>
+	</div>
+	<div class="col-sm-7 col-md-8 col-lg-9">
+	<div class="tab-content-marker">
 	<div id="log" class="tab-pane">
 	<h2 class="tab-head">Log</h2>
 	<div class="table-responsive">
@@ -132,7 +134,7 @@
 		'Unchanged' => rs.select { |s| s['events'].empty? },
 		}.reject { |t,rl| rl.empty? }
 	%>
-	<div class="tab-content">
+	<div class="pill-content-marker">
 	<% res_lists.each do |t,rl| %>
 		<div class="tab-pane" id="resources-<%= t %>">
 		<h3 class="tab-head"><%= t %></h3>
@@ -172,6 +174,8 @@
 		</ul>
 		</div>
 	<% end %>
+	</div>
+	</div>
 	</div>
 	</div>
 	</div>

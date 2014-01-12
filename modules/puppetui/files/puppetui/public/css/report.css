@@ -1,0 +1,8 @@
+pre span.diff1 { color: red; }
+pre span.diff2 { color: green; }
+pre span.diffloc { font-weight: bold; }
+div.resource_details { font-size: smaller; }
+td.value { font-weight: bold; }
+.metrics td.value { text-align: right; }
+.page-container { padding: 15px; }
+
