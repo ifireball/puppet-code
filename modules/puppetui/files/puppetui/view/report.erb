@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <%
 	require 'puppet'
 	require 'yaml'
@@ -7,56 +8,96 @@
 
 	report_file = '/home/ifireball/tmp/puppet/reports/puppetmaster.local/201401101432.yaml'
 	report_json = JSON[YAML.load_file(report_file).to_pson]
+	def hres(res)
+		"public/#{res}"
+	end
 %>
 <html>
 <head>
 	<title>Puppet Report for <%= h(report_json['host']) %></title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="<%= hres('bootstrap/css/bootstrap.min.css') %>" rel="stylesheet">
 	<style type="text/css">
 		pre span.diff1 { color: red; }
 		pre span.diff2 { color: green; }
 		pre span.diffloc { font-weight: bold; }
 		div.resource_details { font-size: smaller; }
+		td.value { font-weight: bold; }
 	</style>
+	<!--[if lt IE 9]>
+	<script src="<%= hres('js/html5shiv.js') %>"></script>
+	<script src="<%= hres('js/respond.min.js') %>"></script>
+	<![endif]-->
 </head>
 <body>
+	<div class="container">
+	<div class="page-header">
 	<h1>Puppet Report for <%= h(report_json['host']) %></h1>
-	<table class="summary">
-		<tr><td>Puppet Version:</td><td><%= report_json['puppet_version'] %></td></tr>
-		<tr><td>Environment:</td><td><%= report_json['environment'] %></td></tr>
-		<tr><td>Run Start:</td><td><%=
+	</div>
+	<div class="tab-content">
+	<div id="summary" class="tab-pane">
+	<h2 class="tab-head">Summary</h2>
+	<div class="table-responsive">
+	<table class="table table-condensed summary">
+		<tr><td class='tlabel'>Host:</td><td class='value'><%= report_json['host'] %></td></tr>
+		<tr><td class='tlabel'>Puppet Version:</td><td class='value'><%= report_json['puppet_version'] %></td></tr>
+		<tr><td class='tlabel'>Environment:</td><td class='value'><%= report_json['environment'] %></td></tr>
+		<tr><td class='tlabel'>Run Start:</td><td class='value'><%=
 		DateTime.iso8601(report_json['time']).strftime("%A, %b %-d, %Y, %H:%M:%S")
 		%></td></tr>
-		<tr><td>Status:</td><td><%=
+		<tr><td class='tlabel'>Status:</td><td class='value'><%=
 		if report_json['metrics']['resources']['values'].any? {|v| v[0] == 'failed' && v[2] > 0}
-			'Failed'
+			'<span class="text-danger">Failed</span>'
 		elsif report_json['metrics']['resources']['values'].any? {|v| v[0] == 'changed' && v[2] > 0}
-			'Changes Commited'
+			'<span class="text-info">Changes Commited</span>'
 		elsif report_json['metrics']['resources']['values'].any? {|v| v[0] == 'out_of_sync' && v[2] > 0}
-			'Changes Pending'
+			'<span class="test-warning">Changes Pending</span>'
 		else
-			'No Change Needed'
+			'<span class="text-success">No Change Needed</span>'
 		end
 		%></td></tr>
 	</table>
-	<h2>Metrics</h2>
+	</div>
+	</div>
+	<div id="metrics" class="tab-pane">
+	<h2 class="tab-head">Metrics</h2>
+	<div class="tab-content">
 	<% report_json['metrics'].values_at(*%w{resources time changes events}).compact.each do |metric| %>
-		<h3><%= metric['label'] %></h3>
-		<table class="metrics">
+		<div class="tab-pane" id="metrics-<%= metric['name'] %>">
+		<h3 class="tab-head"><%= metric['label'] %></h3>
+		<div class="table-responsive">
+		<table class="metrics table table-condensed">
 			<% metric['values'].each do |name, label, value| %>
-				<tr><td><%= label %></td><td><%=
+				<tr><td class='tlabel'><%= label %></td><td class='value'><%=
 				case metric['name']
 				when 'time' then "%.3f sec" % (value)
 				else value
 				end %></td></tr>
 			<% end %>
 		</table>
+		</div>
+		</div>
 	<% end %>
-	<h2>Log</h2>
-	<table class="log">
+	</div>
+	</div>
+	<div id="log" class="tab-pane">
+	<h2 class="tab-head">Log</h2>
+	<div class="table-responsive">
+	<table class="log table table-condensed">
 		<head><tr><th>Time</th><th>Level</th><th>Message</th></tr></head>
 		<body>
+			<% level2bs = { 
+				'debug' => 'active',
+				'info' => 'success',
+				'notice' => '',
+				'warning' => 'warning',
+				'err' => 'danger',
+				'alert' => 'danger',
+				'energ' => 'danger',
+				'crit' => 'danger'
+			} %>
 			<% report_json['logs'].each do |log| %>
-				<tr class="<%= log['level'] %>">
+				<tr class="<%= log['level'] + ' ' + level2bs[log['level']] %>">
 					<td><%= DateTime.iso8601(log['time']).strftime("%H:%M:%S") %></td>
 					<td><%= log['level'] %></td>
 					<td><%= h((log['source'] == 'Puppet' ? '' : log['source'] + ': ')) %>
@@ -77,7 +118,10 @@
 			<% end %>
 		</body>
 	</table>
-	<h2>Resources</h2>
+	</div>
+	</div>
+	<div id="resources" class="tab-pane">
+	<h2 class="tab-head">Resources</h2>
 	<%
 		rs = report_json['resource_statuses'].values.sort_by! { |r| r['time'] }
 		res_lists = {
@@ -88,8 +132,10 @@
 		'Unchanged' => rs.select { |s| s['events'].empty? },
 		}.reject { |t,rl| rl.empty? }
 	%>
+	<div class="tab-content">
 	<% res_lists.each do |t,rl| %>
-		<h3><%= t %></h3>
+		<div class="tab-pane" id="resources-<%= t %>">
+		<h3 class="tab-head"><%= t %></h3>
 		<ul>
 			<% rl.each do |r| %>
 				<li><%= r['containment_path'].join('::') %>
@@ -98,7 +144,8 @@
 						Source: <a class="resouce_source"><%= h(r['file']) %> (<%= r['line'] %>)</a>
 					<% end %>
 					<% unless r['events'].empty? %>
-						<table class="resource_changes">
+						<div class="table-responsive">
+						<table class="resource_changes table table-condensed">
 							<caption>Changed Properties</caption>
 							<thead>
 								<tr>
@@ -117,11 +164,20 @@
 								<% end %>
 							</tbody>
 						</table>
+						</div>
 					<% end %>
 				</div>
 				</li>
 			<% end %>
 		</ul>
+		</div>
 	<% end %>
+	</div>
+	</div>
+	</div>
+	</div>
+	<script src="<%= hres('js/jquery.min.js') %>"></script>
+	<script src="<%= hres('bootstrap/js/bootstrap.min.js') %>"></script>
+	<script src="<%= hres('js/report.js') %>"></script>
 </body>
 </html>
