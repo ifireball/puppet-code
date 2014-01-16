@@ -1,7 +1,10 @@
 #!/usr/biv/env ruby
 # report.rb - Model class representing Puppet reports
 #
+require 'forwardable'
+
 class Report < Base
+  extend Forwardable
   class << self
     def report_from_file(computer, file, &bl)
       path = File.join(reports_dir, computer, file)
@@ -30,4 +33,9 @@ class Report < Base
     yield self if block_given?
   end
   attr_reader :id
+  def ppo
+    @ppo ||= YAML.load_file(@path)
+  end
+  def_delegators :ppo, :host, :name, :summary,
+    :raw_summary, :puppet_version, :time, :status
 end
