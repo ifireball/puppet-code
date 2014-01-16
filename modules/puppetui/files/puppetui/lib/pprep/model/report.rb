@@ -1,9 +1,6 @@
 #!/usr/biv/env ruby
 # report.rb - Model class representing Puppet reports
 #
-require 'pprep/ruby_compat'
-require_relative 'base'
-
 class Report < Base
   class << self
     def report_from_file(computer, file, &bl)

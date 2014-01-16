@@ -1,9 +1,6 @@
 #!/usr/biv/env ruby
 # computer.rb - Model class representing a Puppet managed computer
 #
-require 'pprep/ruby_compat'
-require_relative 'base'
-
 class Computer < Base
   class << self
     def find_by_name(name, &bl)

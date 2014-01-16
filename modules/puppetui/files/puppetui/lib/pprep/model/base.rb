@@ -1,10 +1,9 @@
 #!/usr/biv/env ruby
 # base.rb - Base class for model classes
 #
-require 'pprep/ruby_compat'
-require "puppet"
-
 class Base
+  require 'puppet'
+
   class << self
     def reports_dir
       begin
