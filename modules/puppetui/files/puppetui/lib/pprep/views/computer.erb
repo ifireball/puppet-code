@@ -1,0 +1,19 @@
+<% layout :title => @computer.name %>
+
+<div class="table-responsive">
+<table class="table table-hover">
+	<caption>Puppet Reports</caption>
+	<thead>
+		<tr><th>Report time</th><th>Status</th></tr>
+	</thead>
+	<tbody>
+		<% @computer.reports.reverse.each do |r| %>
+			<tr>
+				<td><a href="<%= url("/report/#{r.id}") %>"><%= r.time.strftime("%A, %b %-d, %Y, %H:%M:%S") %></a></td>
+				<td>TODO</td>
+			</tr>
+		<% end %>
+	</tbody>
+</table>
+</div>
+

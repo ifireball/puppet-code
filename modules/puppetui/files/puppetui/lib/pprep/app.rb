@@ -29,5 +29,15 @@ class App < Sinatra::Base
     @computers = Computer.all
     erb :computers
   end
+
+  get '/computer/:name' do |name|
+    @computer = Computer.find_by_name(name) or raise Sinatra::NotFound
+    erb :computer
+  end
+
+  get '/report/:id' do |rid|
+    @report = Report.find_by_id(rid) or raise Sinatra::NotFound
+    "<pre>#{@report.summary}</pre>"
+  end
 end
 
