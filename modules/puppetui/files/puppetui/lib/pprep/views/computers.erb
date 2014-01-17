@@ -1,42 +1,19 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<title>PPrep: Computers</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link href="<%= hres('bootstrap/css/bootstrap.min.css') %>" rel="stylesheet">
-	<link href="<%= hres('css/report.css') %>" rel="stylesheet">
-	<!--[if lt IE 9]>
-	<script src="<%= hres('js/html5shiv.js') %>"></script>
-	<script src="<%= hres('js/respond.min.js') %>"></script>
-	<![endif]-->
-</head>
-<body>
-	<div class="page-container">
-	<div class="page-header">
-	<h1>Computers</h1>
-	</div>
-	<div class="page-body">
-		<div class="table-responsive">
-		<table class="table table-hover">
-			<thead>
-				<tr><th>Hostname</th><th>Last Report</th><th>Status</th></tr>
-			</thead>
-			<tbody>
-				<% @computers.each do |c| %>
-					<tr>
-						<td><a href="<%= url("/computer/#{c.name}") %>"><%= c.name %></a></td>
-						<td>TODO</td>
-						<td>TODO</td>
-					</tr>
-				<% end %>
-			</tbody>
-		</table>
-		</div>
-	</div>
-	</div>
-	</div>
-	<script src="<%= hres('js/jquery.min.js') %>"></script>
-	<script src="<%= hres('bootstrap/js/bootstrap.min.js') %>"></script>
-	<script src="<%= hres('js/report.js') %>"></script>
-</body>
-</html>
+<% layout :title => 'Computers' %>
+
+<div class="table-responsive">
+<table class="table table-hover">
+	<thead>
+		<tr><th>Hostname</th><th>Last Report</th><th>Status</th></tr>
+	</thead>
+	<tbody>
+		<% @computers.each do |c| %>
+			<tr>
+				<td><a href="<%= url("/computer/#{c.name}") %>"><%= c.name %></a></td>
+				<td>TODO</td>
+				<td>TODO</td>
+			</tr>
+		<% end %>
+	</tbody>
+</table>
+</div>
+

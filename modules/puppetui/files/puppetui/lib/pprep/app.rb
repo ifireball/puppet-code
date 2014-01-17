@@ -14,6 +14,11 @@ class App < Sinatra::Base
     def hres(res)
       url("/#{res}")
     end
+    def layout(params)
+      params.each do |param, value|
+        instance_variable_set("@#{param}", value)
+      end
+    end
   end
 
   get '/' do
