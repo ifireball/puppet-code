@@ -1,187 +1,141 @@
-<!DOCTYPE html>
-<%
-	require 'puppet'
-	require 'yaml'
-	require 'json'
-
-	include ERB::Util
-
-	report_file = '/home/ifireball/tmp/puppet/reports/puppetmaster.local/201401101432.yaml'
-	report_json = JSON[YAML.load_file(report_file).to_pson]
-	def hres(res)
-		"public/#{res}"
+<% layout(
+	:title => "Puppet Report for #{@report.host}",
+	:stylesheets => %w{css/report.css},
+	:scripts => %w{js/report.js},
+) %>
+<div class="row">
+<div class="col-sm-5 col-md-4 col-lg-3">
+<div id="summary" class="panel panel-default">
+<div class="panel-heading">
+	<h2 class="panel-title">Summary</h2>
+</div>
+<div class="panel-body">
+<table class="table table-condensed summary">
+	<tr><td class='tlabel'>Host:</td><td class='value'><%= @report.host %></td></tr>
+	<tr><td class='tlabel'>Puppet Version:</td><td class='value'><%= @report.puppet_version %></td></tr>
+	<tr><td class='tlabel'>Environment:</td><td class='value'><%= @report.environment %></td></tr>
+	<tr><td class='tlabel'>Run Start:</td><td class='value'><%= tlong(@report.time) %></td></tr>
+	<tr><td class='tlabel'>Status:</td><td class='value'><%= 
+	case @report.status
+	when :failed  then '<span class="text-danger">Failed</span>'
+	when :changed then '<span class="text-info">Changes Commited</span>'
+	when :pending then '<span class="test-warning">Changes Pending</span>'
+	else '<span class="text-success">No Change Needed</span>'
 	end
-%>
-<html>
-<head>
-	<title>Puppet Report for <%= h(report_json['host']) %></title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link href="<%= hres('bootstrap/css/bootstrap.min.css') %>" rel="stylesheet">
-	<link href="<%= hres('css/report.css') %>" rel="stylesheet">
-	<!--[if lt IE 9]>
-	<script src="<%= hres('js/html5shiv.js') %>"></script>
-	<script src="<%= hres('js/respond.min.js') %>"></script>
-	<![endif]-->
-</head>
-<body>
-	<div class="page-container">
-	<div class="page-header">
-	<h1>Puppet Report for <%= h(report_json['host']) %></h1>
-	</div>
-	<div class="row">
-	<div class="col-sm-5 col-md-4 col-lg-3">
-	<div id="summary" class="panel panel-default">
-	<div class="panel-heading">
-		<h2 class="panel-title">Summary</h2>
-	</div>
-	<div class="panel-body">
-	<table class="table table-condensed summary">
-		<tr><td class='tlabel'>Host:</td><td class='value'><%= report_json['host'] %></td></tr>
-		<tr><td class='tlabel'>Puppet Version:</td><td class='value'><%= report_json['puppet_version'] %></td></tr>
-		<tr><td class='tlabel'>Environment:</td><td class='value'><%= report_json['environment'] %></td></tr>
-		<tr><td class='tlabel'>Run Start:</td><td class='value'><%=
-		DateTime.iso8601(report_json['time']).strftime("%A, %b %-d, %Y, %H:%M:%S")
-		%></td></tr>
-		<tr><td class='tlabel'>Status:</td><td class='value'><%=
-		if report_json['metrics']['resources']['values'].any? {|v| v[0] == 'failed' && v[2] > 0}
-			'<span class="text-danger">Failed</span>'
-		elsif report_json['metrics']['resources']['values'].any? {|v| v[0] == 'changed' && v[2] > 0}
-			'<span class="text-info">Changes Commited</span>'
-		elsif report_json['metrics']['resources']['values'].any? {|v| v[0] == 'out_of_sync' && v[2] > 0}
-			'<span class="test-warning">Changes Pending</span>'
-		else
-			'<span class="text-success">No Change Needed</span>'
-		end
-		%></td></tr>
+	%></td></tr>
+</table>
+</div><!-- .panel-body -->
+</div><!-- #summary .panel -->
+<div id="metrics" class="panel panel-default">
+<div class="panel-heading">
+	<h2 class="panel-title">Metrics</h2>
+</div>
+<div class="panel-body">
+<div class="pill-content-marker">
+<% @report.metrics.values_at(*%w{resources time events}).compact.each do |metric| %>
+	<div class="tab-pane" id="metrics-<%= metric.name %>">
+	<h3 class="tab-head"><%= metric.label %></h3>
+	<table class="metrics table table-condensed">
+		<% metric.values.each do |name, label, value| %>
+			<tr><td class='tlabel'><%= label %></td><td class='value'><%=
+			case metric.name
+			when 'time' then "%.3f sec" % (value)
+			else value
+			end %></td></tr>
+		<% end %>
 	</table>
 	</div>
+<% end %>
+</div><!-- .pill-content-marker -->
+</div><!-- .panel-body -->
+</div><!-- #metrics .panel -->
+</div><!-- .col -->
+<div class="col-sm-7 col-md-8 col-lg-9">
+<div class="tab-content-marker">
+<div id="log" class="tab-pane">
+<h2 class="tab-head">Log</h2>
+<div class="table-responsive">
+<table class="log table table-condensed">
+	<head><tr><th>Time</th><th>Level</th><th>Message</th></tr></head>
+	<body>
+		<% level2bs = { 
+			:debug => 'active',
+			:info => 'success',
+			:notice => '',
+			:warning => 'warning',
+			:err => 'danger',
+			:alert => 'danger',
+			:energ => 'danger',
+			:crit => 'danger'
+		} %>
+		<% @report.logs.each do |log| %>
+			<tr class="<%= log.level.to_s + ' ' + level2bs[log.level] %>">
+				<td><%= tshort(log.time) %></td>
+				<td><%= log.level %></td>
+				<td><%= h((log.source == 'Puppet' ? '' : log.source + ': ')) %>
+				<% if log.message =~ /\A\n/ %>
+					<pre><% log.message[1..-1].each_line do |l| %><span class="<%= 
+					case l
+					when /\A-/ then 'diff1'
+					when /\A\+/ then 'diff2'
+					when /\A@/ then 'diffloc'
+					else 'diff0'
+					end
+					%>"><%= h(l) %></span><% end %></pre>
+				<% else %>
+					<%= h(log.message) %>
+				<% end %>
+				</td>
+			</tr>
+		<% end %>
+	</body>
+</table>
+</div><!-- .table-responsive -->
+</div><!-- #log .tab-pane -->
+<div id="resources" class="tab-pane">
+<h2 class="tab-head">Resources</h2>
+<div class="pill-content-marker">
+<% @report.resource_lists.each do |t,rl| %>
+	<div class="tab-pane" id="resources-<%= t %>">
+	<h3 class="tab-head"><%= t.to_s.to_title %></h3>
+	<ul>
+		<% rl.each do |r| %>
+			<li><%= r.containment_path.join('::') %>
+			<div class='resource_details'>
+				<% if r.file %>
+					Source: <a class="resouce_source"><%= h(r.file) %> (<%= r.line %>)</a>
+				<% end %>
+				<% unless r.events.empty? %>
+					<div class="table-responsive">
+					<table class="resource_changes table table-condensed">
+						<caption>Changed Properties</caption>
+						<thead>
+							<tr>
+								<th>Property</th>
+								<th>Old Value</th>
+								<th>New Value</th>
+								<th>Change Status</th>
+							</tr>
+						</thead>
+						<tbody>
+							<% r.events.each do |e| %>
+								<td><%= h(e.property) %></td>
+								<td><%= h(e.previous_value) %></td>
+								<td><%= h(e.desired_value) %></td>
+								<td><%= e.status.to_title %></td>
+							<% end %>
+						</tbody>
+					</table>
+					</div>
+				<% end %>
+			</div>
+			</li>
+		<% end %>
+	</ul>
 	</div>
-	<div id="metrics" class="panel panel-default">
-	<div class="panel-heading">
-		<h2 class="panel-title">Metrics</h2>
-	</div>
-	<div class="panel-body">
-	<div class="pill-content-marker">
-	<% report_json['metrics'].values_at(*%w{resources time events}).compact.each do |metric| %>
-		<div class="tab-pane" id="metrics-<%= metric['name'] %>">
-		<h3 class="tab-head"><%= metric['label'] %></h3>
-		<table class="metrics table table-condensed">
-			<% metric['values'].each do |name, label, value| %>
-				<tr><td class='tlabel'><%= label %></td><td class='value'><%=
-				case metric['name']
-				when 'time' then "%.3f sec" % (value)
-				else value
-				end %></td></tr>
-			<% end %>
-		</table>
-		</div>
-	<% end %>
-	</div>
-	</div>
-	</div>
-	</div>
-	<div class="col-sm-7 col-md-8 col-lg-9">
-	<div class="tab-content-marker">
-	<div id="log" class="tab-pane">
-	<h2 class="tab-head">Log</h2>
-	<div class="table-responsive">
-	<table class="log table table-condensed">
-		<head><tr><th>Time</th><th>Level</th><th>Message</th></tr></head>
-		<body>
-			<% level2bs = { 
-				'debug' => 'active',
-				'info' => 'success',
-				'notice' => '',
-				'warning' => 'warning',
-				'err' => 'danger',
-				'alert' => 'danger',
-				'energ' => 'danger',
-				'crit' => 'danger'
-			} %>
-			<% report_json['logs'].each do |log| %>
-				<tr class="<%= log['level'] + ' ' + level2bs[log['level']] %>">
-					<td><%= DateTime.iso8601(log['time']).strftime("%H:%M:%S") %></td>
-					<td><%= log['level'] %></td>
-					<td><%= h((log['source'] == 'Puppet' ? '' : log['source'] + ': ')) %>
-					<% if log['message'] =~ /\A\n/ %>
-						<pre><% log['message'][1..-1].each_line do |l| %><span class="<%= 
-						case l
-						when /\A-/ then 'diff1'
-						when /\A\+/ then 'diff2'
-						when /\A@/ then 'diffloc'
-						else 'diff0'
-						end
-						%>"><%= h(l) %></span><% end %></pre>
-					<% else %>
-						<%= h(log['message']) %>
-					<% end %>
-					</td>
-				</tr>
-			<% end %>
-		</body>
-	</table>
-	</div>
-	</div>
-	<div id="resources" class="tab-pane">
-	<h2 class="tab-head">Resources</h2>
-	<%
-		rs = report_json['resource_statuses'].values.sort_by! { |r| r['time'] }
-		res_lists = {
-		'Changed' => rs.select { |s| s['events'].any? {|e| e['status'] == 'success' } },
-		'Failed' => rs.select { |s| s['events'].any? {|e| e['status'] == 'failure' } },
-		'Skipped' => rs.select { |s| s['skipped'] },
-		'Pending Change' => rs.select { |s| s['events'].any? {|e| e['status'] == 'noop' } },
-		'Unchanged' => rs.select { |s| s['events'].empty? },
-		}.reject { |t,rl| rl.empty? }
-	%>
-	<div class="pill-content-marker">
-	<% res_lists.each do |t,rl| %>
-		<div class="tab-pane" id="resources-<%= t %>">
-		<h3 class="tab-head"><%= t %></h3>
-		<ul>
-			<% rl.each do |r| %>
-				<li><%= r['containment_path'].join('::') %>
-				<div class='resource_details'>
-					<% if r['file'] %>
-						Source: <a class="resouce_source"><%= h(r['file']) %> (<%= r['line'] %>)</a>
-					<% end %>
-					<% unless r['events'].empty? %>
-						<div class="table-responsive">
-						<table class="resource_changes table table-condensed">
-							<caption>Changed Properties</caption>
-							<thead>
-								<tr>
-									<th>Property</th>
-									<th>Old Value</th>
-									<th>New Value</th>
-									<th>Change Status</th>
-								</tr>
-							</thead>
-							<tbody>
-								<% r['events'].each do |e| %>
-									<td><%= h(e['property']) %></td>
-									<td><%= h(e['previous_value']) %></td>
-									<td><%= h(e['desired_value']) %></td>
-									<td><%= e['status'].capitalize %></td>
-								<% end %>
-							</tbody>
-						</table>
-						</div>
-					<% end %>
-				</div>
-				</li>
-			<% end %>
-		</ul>
-		</div>
-	<% end %>
-	</div>
-	</div>
-	</div>
-	</div>
-	</div>
-	</div>
-	<script src="<%= hres('js/jquery.min.js') %>"></script>
-	<script src="<%= hres('bootstrap/js/bootstrap.min.js') %>"></script>
-	<script src="<%= hres('js/report.js') %>"></script>
-</body>
-</html>
+<% end %>
+</div><!-- .pill-content-marker -->
+</div><!-- #resources .tab-pane -->
+</div><!-- .tab-content-marker -->
+</div><!-- .col -->
+</div><!-- .row -->

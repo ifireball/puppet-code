@@ -19,7 +19,14 @@ class App < Sinatra::Base
         instance_variable_set("@#{param}", value)
       end
     end
+    def tlong(time)
+      time.strftime("%A, %b %-d, %Y, %H:%M:%S")
+    end
+    def tshort(time)
+      time.strftime("%H:%M:%S") 
+    end
   end
+  helpers ERB::Util
 
   get '/' do
     'Hello world from PPrep::App'
@@ -37,7 +44,7 @@ class App < Sinatra::Base
 
   get '/report/:id' do |rid|
     @report = Report.find_by_id(rid) or raise Sinatra::NotFound
-    "<pre>#{@report.summary}</pre>"
+    erb :report
   end
 end
 

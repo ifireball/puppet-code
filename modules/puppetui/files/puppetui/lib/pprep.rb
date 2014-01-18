@@ -3,6 +3,7 @@
 #   Library for doing things with Puppet reports
 #
 require 'module_require'
+require 'string_to_title'
 
 module PPrep
   submodule_require_all

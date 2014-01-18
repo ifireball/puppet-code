@@ -37,5 +37,28 @@ class Report < Base
     @ppo ||= YAML.load_file(@path)
   end
   def_delegators :ppo, :host, :name, :summary,
-    :raw_summary, :puppet_version, :time, :status
+    :raw_summary, :puppet_version, :time, :status,
+    :environment, :metrics, :logs
+  def status
+    case 
+    when metrics['resources']['failed'] > 0 then :failed
+    when metrics['resources']['changed'] > 0 then :changed
+    when metrics['resources']['out_of_sync'] > 0 then :pending
+    else :success
+    end
+  end
+  def resource_statuses
+    @resource_statuses ||= ppo.resource_statuses.values.sort_by! &:time
+  end
+  alias_method :rs, :resource_statuses
+  def resource_lists
+    @resource_lists ||= {
+      :changed => rs.select { |s| s.events.any? {|e| e.status == 'success' } },
+      :failed => rs.select { |s| s.events.any? {|e| e.status == 'failure' } },
+      :skipped => rs.select { |s| s.skipped },
+      :pending_change => rs.select { |s| s.events.any? {|e| e.status == 'noop' } },
+      :unchanged => rs.select { |s| s.events.empty? },
+    }.reject { |t,rl| rl.empty? }
+  end
 end
+
