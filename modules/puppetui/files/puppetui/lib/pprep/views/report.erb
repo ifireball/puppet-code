@@ -19,29 +19,32 @@
 </table>
 </div><!-- .panel-body -->
 </div><!-- #summary .panel -->
-<div id="metrics" class="panel panel-default">
-<div class="panel-heading">
-	<h2 class="panel-title">Metrics</h2>
-</div>
-<div class="panel-body">
-<div class="pill-content-marker">
-<% @report.metrics.values_at(*%w{resources time events}).compact.each do |metric| %>
-	<div class="tab-pane" id="metrics-<%= metric.name %>">
-	<h3 class="tab-head"><%= metric.label %></h3>
-	<table class="metrics table table-condensed">
-		<% metric.values.each do |name, label, value| %>
-			<tr><td class='tlabel'><%= label %></td><td class='value'><%=
-			case metric.name
-			when 'time' then "%.3f sec" % (value)
-			else value
-			end %></td></tr>
-		<% end %>
-	</table>
+<% metrics = @report.metrics.values_at(*%w{resources time events}).compact 
+unless metrics.empty? %>
+	<div id="metrics" class="panel panel-default">
+	<div class="panel-heading">
+		<h2 class="panel-title">Metrics</h2>
 	</div>
+	<div class="panel-body">
+	<div class="pill-content-marker">
+	<% metrics.each do |metric| %>
+		<div class="tab-pane" id="metrics-<%= metric.name %>">
+		<h3 class="tab-head"><%= metric.label %></h3>
+		<table class="metrics table table-condensed">
+			<% metric.values.each do |name, label, value| %>
+				<tr><td class='tlabel'><%= label %></td><td class='value'><%=
+				case metric.name
+				when 'time' then "%.3f sec" % (value)
+				else value
+				end %></td></tr>
+			<% end %>
+		</table>
+		</div>
+	<% end %>
+	</div><!-- .pill-content-marker -->
+	</div><!-- .panel-body -->
+	</div><!-- #metrics .panel -->
 <% end %>
-</div><!-- .pill-content-marker -->
-</div><!-- .panel-body -->
-</div><!-- #metrics .panel -->
 </div><!-- .col -->
 <div class="col-sm-7 col-md-8 col-lg-9">
 <div class="tab-content-marker">
@@ -85,50 +88,52 @@
 </table>
 </div><!-- .table-responsive -->
 </div><!-- #log .tab-pane -->
-<div id="resources" class="tab-pane">
-<h2 class="tab-head">Resources</h2>
-<div class="pill-content-marker">
-<% @report.resource_lists.each do |t,rl| %>
-	<div class="tab-pane" id="resources-<%= t %>">
-	<h3 class="tab-head"><%= t.to_s.to_title %></h3>
-	<ul>
-		<% rl.each do |r| %>
-			<li><%= r.resource || r.containment_path.last %>
-			<div class='resource_details'>
-				<% if r.file %>
-					Source: <a class="resouce_source"><%= h(r.file) %> (<%= r.line %>)</a>
-				<% end %>
-				<% unless r.events.empty? %>
-					<div class="table-responsive">
-					<table class="resource_changes table table-condensed">
-						<caption>Changed Properties</caption>
-						<thead>
-							<tr>
-								<th>Property</th>
-								<th>Old Value</th>
-								<th>New Value</th>
-								<th>Change Status</th>
-							</tr>
-						</thead>
-						<tbody>
-							<% r.events.each do |e| %>
-								<td><%= h(e.property) %></td>
-								<td><%= h(e.previous_value) %></td>
-								<td><%= h(e.desired_value) %></td>
-								<td><%= e.status.to_title %></td>
-							<% end %>
-						</tbody>
-					</table>
-					</div>
-				<% end %>
-			</div>
-			</li>
-		<% end %>
-	</ul>
-	</div>
+<% unless @report.resource_lists.empty? %>
+	<div id="resources" class="tab-pane">
+	<h2 class="tab-head">Resources</h2>
+	<div class="pill-content-marker">
+	<% @report.resource_lists.each do |t,rl| %>
+		<div class="tab-pane" id="resources-<%= t %>">
+		<h3 class="tab-head"><%= t.to_s.to_title %></h3>
+		<ul>
+			<% rl.each do |r| %>
+				<li><%= r.resource || r.containment_path.last %>
+				<div class='resource_details'>
+					<% if r.file %>
+						Source: <a class="resouce_source"><%= h(r.file) %> (<%= r.line %>)</a>
+					<% end %>
+					<% unless r.events.empty? %>
+						<div class="table-responsive">
+						<table class="resource_changes table table-condensed">
+							<caption>Changed Properties</caption>
+							<thead>
+								<tr>
+									<th>Property</th>
+									<th>Old Value</th>
+									<th>New Value</th>
+									<th>Change Status</th>
+								</tr>
+							</thead>
+							<tbody>
+								<% r.events.each do |e| %>
+									<td><%= h(e.property) %></td>
+									<td><%= h(e.previous_value) %></td>
+									<td><%= h(e.desired_value) %></td>
+									<td><%= e.status.to_title %></td>
+								<% end %>
+							</tbody>
+						</table>
+						</div>
+					<% end %>
+				</div>
+				</li>
+			<% end %>
+		</ul>
+		</div>
+	<% end %>
+	</div><!-- .pill-content-marker -->
+	</div><!-- #resources .tab-pane -->
 <% end %>
-</div><!-- .pill-content-marker -->
-</div><!-- #resources .tab-pane -->
 </div><!-- .tab-content-marker -->
 </div><!-- .col -->
 </div><!-- .row -->
