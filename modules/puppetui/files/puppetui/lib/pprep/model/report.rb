@@ -10,7 +10,9 @@ class Report < Base
       path = File.join(reports_dir, computer, file)
       return unless file =~ /\A(\d{12})\.yaml/ and
         [:file?, :readable?].all? { |p| File.send(p, path) }
-      new([computer, $1].join('@'), path, &bl)
+      id = [computer, $1].join('@')
+      @cache ||= {}
+      @cache[path] ||= new(id, path, &bl)
     end
     def find_by_computer(computer, &bl)
       return unless computer =~ /\A\w[\w_\-\.]*\z/
@@ -33,14 +35,21 @@ class Report < Base
     yield self if block_given?
   end
   attr_reader :id
+  def ==(other)
+    id == other.id
+  end
   def ppo
     @ppo ||= YAML.load_file(@path)
   end
   def_delegators :ppo, :host, :name, :summary,
     :raw_summary, :puppet_version, :time, :status,
     :environment, :metrics, :logs
+  def computer
+    @computer ||= Computer.find_by_name(name)
+  end
   def status
     case 
+    when metrics['resources'].nil? then :compilation_failed
     when metrics['resources']['failed'] > 0 then :failed
     when metrics['resources']['changed'] > 0 then :changed
     when metrics['resources']['out_of_sync'] > 0 then :pending

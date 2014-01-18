@@ -9,8 +9,8 @@
 	<tbody>
 		<% @computer.reports.reverse.each do |r| %>
 			<tr>
-				<td><a href="<%= url("/report/#{r.id}") %>"><%= r.time.strftime("%A, %b %-d, %Y, %H:%M:%S") %></a></td>
-				<td>TODO</td>
+				<td><%= report_link(r) %></td>
+				<td><%= status_tag(r) %></td>
 			</tr>
 		<% end %>
 	</tbody>

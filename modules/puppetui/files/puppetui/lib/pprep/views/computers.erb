@@ -8,9 +8,9 @@
 	<tbody>
 		<% @computers.each do |c| %>
 			<tr>
-				<td><a href="<%= url("/computer/#{c.name}") %>"><%= c.name %></a></td>
-				<td>TODO</td>
-				<td>TODO</td>
+				<td><%= computer_link(c) %></td>
+				<td><%= report_link(c.reports.last) %></td>
+				<td><%= status_tag(c.reports.last) %></td>
 			</tr>
 		<% end %>
 	</tbody>

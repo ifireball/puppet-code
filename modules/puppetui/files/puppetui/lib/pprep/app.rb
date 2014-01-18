@@ -25,6 +25,23 @@ class App < Sinatra::Base
     def tshort(time)
       time.strftime("%H:%M:%S") 
     end
+    def computer_link(computer)
+      name = computer.respond_to?(:name) ? computer.name : computer.to_s
+      "<a href=\"#{url('/computer/' + name)}\">#{h(name)}</a>"
+    end
+    def report_link(report)
+      "<a href=\"#{url('/report/' + report.id)}\">#{tlong(report.time)}</a>"
+    end
+    def status_tag(report)
+      status = report.respond_to?(:status) ? report.status : report.to_s
+      case status
+      when :compilation_failed  then '<span class="text-danger">Compilation Failed</span>'
+      when :failed  then '<span class="text-danger">Failed</span>'
+      when :changed then '<span class="text-info">Changes Commited</span>'
+      when :pending then '<span class="text-warning">Changes Pending</span>'
+      else '<span class="text-success">No Change Needed</span>'
+      end
+    end
   end
   helpers ERB::Util
 
@@ -39,11 +56,15 @@ class App < Sinatra::Base
 
   get '/computer/:name' do |name|
     @computer = Computer.find_by_name(name) or raise Sinatra::NotFound
+    last_modified @computer.reports.last.time
+    etag @computer.reports.last.id
     erb :computer
   end
 
   get '/report/:id' do |rid|
     @report = Report.find_by_id(rid) or raise Sinatra::NotFound
+    last_modified @report.time
+    etag @report.id
     erb :report
   end
 end

@@ -11,18 +11,11 @@
 </div>
 <div class="panel-body">
 <table class="table table-condensed summary">
-	<tr><td class='tlabel'>Host:</td><td class='value'><%= @report.host %></td></tr>
+	<tr><td class='tlabel'>Host:</td><td class='value'><%= computer_link(@report.computer) %></td></tr>
 	<tr><td class='tlabel'>Puppet Version:</td><td class='value'><%= @report.puppet_version %></td></tr>
 	<tr><td class='tlabel'>Environment:</td><td class='value'><%= @report.environment %></td></tr>
 	<tr><td class='tlabel'>Run Start:</td><td class='value'><%= tlong(@report.time) %></td></tr>
-	<tr><td class='tlabel'>Status:</td><td class='value'><%= 
-	case @report.status
-	when :failed  then '<span class="text-danger">Failed</span>'
-	when :changed then '<span class="text-info">Changes Commited</span>'
-	when :pending then '<span class="test-warning">Changes Pending</span>'
-	else '<span class="text-success">No Change Needed</span>'
-	end
-	%></td></tr>
+	<tr><td class='tlabel'>Status:</td><td class='value'><%= status_tag(@report) %></td></tr>
 </table>
 </div><!-- .panel-body -->
 </div><!-- #summary .panel -->
@@ -100,7 +93,7 @@
 	<h3 class="tab-head"><%= t.to_s.to_title %></h3>
 	<ul>
 		<% rl.each do |r| %>
-			<li><%= r.containment_path.join('::') %>
+			<li><%= r.resource || r.containment_path.last %>
 			<div class='resource_details'>
 				<% if r.file %>
 					Source: <a class="resouce_source"><%= h(r.file) %> (<%= r.line %>)</a>
