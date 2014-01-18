@@ -50,14 +50,21 @@ class App < Sinatra::Base
   end
 
   get '/computer' do
-    @computers = Computer.all
+    @computers = Computer.all.sort_by(&:name).reverse!.sort_by! do |c|
+      c.reports.empty? ? Time.new(0) : c.reports.last.time
+    end.reverse!
     erb :computers
   end
 
   get '/computer/:name' do |name|
     @computer = Computer.find_by_name(name) or raise Sinatra::NotFound
-    last_modified @computer.reports.last.time
-    etag @computer.reports.last.id
+    if @computer.reports.empty?
+      last_modified Time.new(0)
+      etag "#{@computer.name}@0"
+    else
+      last_modified @computer.reports.last.time
+      etag @computer.reports.last.id
+    end
     erb :computer
   end
 

@@ -9,8 +9,13 @@
 		<% @computers.each do |c| %>
 			<tr>
 				<td><%= computer_link(c) %></td>
-				<td><%= report_link(c.reports.last) %></td>
-				<td><%= status_tag(c.reports.last) %></td>
+				<% if c.reports.empty? %>
+					<td><span class="text-muted">not found</span></td>
+					<td><span class="text-muted">unknown</span></td>
+				<% else %>
+					<td><%= report_link(c.reports.last) %></td>
+					<td><%= status_tag(c.reports.last) %></td>
+				<% end %>
 			</tr>
 		<% end %>
 	</tbody>
