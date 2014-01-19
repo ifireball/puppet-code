@@ -17,6 +17,9 @@
 	<div class="page-container">
 	<div class="page-header">
 		<h1><%= @title %></h1>
+		<% if @uplink %>
+			<p class="uplink">[<a href="<%= @uplink %>"><%= @uplink_title || @uplink %></a>]</p>
+		<% end %>
 	</div>
 	<div class="page-body">
 		<%= yield %>
@@ -25,6 +28,7 @@
 	</div>
 	<script src="<%= hres('js/jquery.min.js') %>"></script>
 	<script src="<%= hres('bootstrap/js/bootstrap.min.js') %>"></script>
+	<script src="<%= hres('js/pprep.js') %>"></script>
 	<% (@scripts || []).each do |script| %>
 		<script src="<%= hres(script) %>"></script>
 	<% end %>

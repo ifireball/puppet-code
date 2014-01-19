@@ -2,6 +2,8 @@
 	:title => "Puppet Report for #{@report.host}",
 	:stylesheets => %w{css/report.css},
 	:scripts => %w{js/report.js},
+	:uplink => '/computer/' + @report.computer.name,
+	:uplink_title => 'Select another report',
 ) %>
 <div class="row">
 <div class="col-sm-5 col-md-4 col-lg-3">

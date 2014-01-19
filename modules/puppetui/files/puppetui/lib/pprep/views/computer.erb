@@ -1,4 +1,8 @@
-<% layout :title => @computer.name %>
+<% layout(
+	:title => @computer.name,
+	:uplink => '/computer',
+	:uplink_title => 'Select another computer',
+) %>
 
 <% unless @computer.reports.empty? %>
 	<div class="table-responsive">
