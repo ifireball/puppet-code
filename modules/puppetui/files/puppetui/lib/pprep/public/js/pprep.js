@@ -1,20 +1,27 @@
+function column_index(th) {
+	return th.closest('tr').children('th').index(th);
+}
+
+function find_column_cells(th) {
+	var cells = th.data('column_cells');
+	if(!cells) {
+		cells = th.closest('table') 
+			.find('tbody > tr > :nth-child(' + (column_index(th) + 1) + ')');
+		th.data('column_celss', cells)
+	}
+	return cells;
+}
+
 function filter_column(th, filter_func) {
-	var col_idx = th.closest('tr').children('th').index(th);
-	var hide_class = '_src_hidden' + col_idx;
-	var src_class = '_src_col' + col_idx;
-	// console.log("Found column at offset: " + col_idx);
-	if(!th.hasClass('_searchable')) {
-		th.addClass('_searchable');
-		th.closest('table')
-		.find('tbody > tr > :nth-child(' + col_idx + 1 + ')')
-		//.find('tbody tr td')
-		.addClass(src_class);
+	var hide_class = th.data('filter_hide_class');
+	if(!hide_class) {
+		hide_class = '_src_hidden' + column_index(th);
+		th.data('filter_hide_class', hide_class);
 		$('head').append('<style type="text/css">' + 
 			'tr.' + hide_class + ' { display: none; }' +
 			'</style>');
 	}
-	th.closest('table').find('.' + src_class)
-	.each(function(i, e_td) {
+	find_column_cells(th).each(function(i, e_td) {
 		var td = $( e_td );
 		if(filter_func(td)) {
 			td.closest('tr').removeClass(hide_class);
@@ -97,8 +104,15 @@ function add_dd_calendar_item(menu) {
 }
 
 function add_dd_lut_items(menu, th) {
+	//console.log(find_column_cells(th));
 	menu.append('<li role="presentation" class="dropdown-header">Show</li>')
-		.append($('<li role="presentation"><label><input type="radio" class="_tbl_filter">All</label></li>'));
+		.append($('<li role="presentation"><label><input type="radio" name="_tbl_filter" class="_tbl_filter">All</label></li>'));
+	find_column_cells(th).each(function(i, cell) {
+		$('<li role="presetation"></li>')
+		.append($('<label><input type="radio" name="_tbl_filter" class="_tbl_filter"></label>')
+			.append($( cell ).html())
+		).appendTo(menu);
+	});
 	return menu;
 }
 
