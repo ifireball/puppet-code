@@ -29,31 +29,38 @@ function create_dd_menu() {
 }
 
 function create_col_dd(menu) {
-	return $('<div class="btn-group btn-group-xs pull-right">' +
-		'<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">' +
-		'<span class="caret"></span>' +
-		'</button>' +
-		'</div>').append(menu).on('shown.bs.dropdown', function(e) {
-			$( this ).find('input').first().focus();
+	return $('<form class="form-inline pull-right" role="form" action="">')
+		.on('submit', function(e) {
+			e.preventDefault();
+			$( this ).find('.dropdown-toggle').first()
+				.dropdown('toggle');
 		})
+		.append($('<div class="btn-group btn-group-xs pull-right">' +
+			'<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">' +
+			'<span class="caret"></span>' +
+			'</button>' +
+			'</div>').append(menu).on('shown.bs.dropdown', function(e) {
+				$( this ).find('input').first().focus();
+			})
+		)
 }
 
 function add_dd_sort_items(menu) {
-	return menu.append('<li role="presentation" class="dropdown-header">Sort</li>').
-		append($('<li role="presentation"><a role="menuitem" tabindex="-1" href="#">Ascending</a></li>')).
-		append($('<li role="presentation"><a role="menuitem" tabindex="-1" href="#">Descending</a></li>'));
+	menu.append('<li role="presentation" class="dropdown-header">Sort</li>')
+		.append($('<li role="presentation"><label><input type="radio" class="_tbl_sort">Ascending</label></li>'))
+		.append($('<li role="presentation"><label><input type="radio" class="_tbl_sort">Descending</label></li>'))
+		.find('input._tbl_sort').click(function(e) {
+			var $this = $( this );
+			$this.closest('table').find('input._tbl_sort').prop('checked', false);
+			$this.prop('checked', true);
+		});
+	return menu;
 }
 
 function add_dd_search_item(menu) {
 	return menu.append('<li role="presentation" class="dropdown-header">Find</li>')
 		.append($('<li role="presentation">')
-			.append($('<form class="form-inline input-group input-group-sm" role="form" action="">')
-				.on('submit', function(e) {
-					e.preventDefault();
-					$( this ).closest('.btn-group')
-						.children('.dropdown-toggle').first()
-						.dropdown('toggle');
-				})
+			.append($('<div class="input-group input-group-sm">')
 				.append($('<input class="form-control" type="text" name="search" placeholder="Search..." value="">')
 					.click(function(e) {
 						e.stopPropagation();

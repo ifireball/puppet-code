@@ -2,4 +2,21 @@
 .uplink {
 	font-size : 0.8em;
 }
+.dropdown-menu > li > label {
+	display: block;
+	padding: 3px 20px 3px 4px;
+	clear: both;
+	font-weight: normal;
+	line-height: 1.42857;
+	color: rgb(51, 51, 51);
+	white-space: nowrap;
+}
+.dropdown-menu > li > label:hover {
+	color: rgb(38, 38, 38);
+	text-decoration: none;
+	background-color: rgb(245, 245, 245)
+}
+.dropdown-menu > li > label input[type=radio] {
+	margin: 0px 2px 0px 0px;
+}
 
