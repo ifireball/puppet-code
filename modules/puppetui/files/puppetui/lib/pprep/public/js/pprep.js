@@ -96,6 +96,12 @@ function add_dd_calendar_item(menu) {
 	// TODO
 }
 
+function add_dd_lut_items(menu, th) {
+	menu.append('<li role="presentation" class="dropdown-header">Show</li>')
+		.append($('<li role="presentation"><label><input type="radio" class="_tbl_filter">All</label></li>'));
+	return menu;
+}
+
 function educate_name_columns() {
 	$("th.tcol-name").append(create_col_dd(
 		add_dd_sort_items(add_dd_search_item(create_dd_menu()))
@@ -108,9 +114,17 @@ function educate_date_columns() {
 	));
 }
 
+function educate_lut_columns() {
+	$("th.tcol-lut").each(function(i, e_th) {
+		var th = $( e_th )
+		th.append(create_col_dd(add_dd_lut_items(create_dd_menu(), th)));
+	});
+}
+
 function educate_columns() {
 	educate_name_columns();
 	educate_date_columns();
+	educate_lut_columns();
 }
 
 $( document ).ready(function() {
