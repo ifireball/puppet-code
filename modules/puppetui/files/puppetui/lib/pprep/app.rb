@@ -12,7 +12,7 @@ class App < Sinatra::Base
 
   helpers do
     def hres(res)
-      url("/#{res}")
+      "/#{res}"
     end
     def layout(params)
       params.each do |param, value|
@@ -27,10 +27,10 @@ class App < Sinatra::Base
     end
     def computer_link(computer)
       name = computer.respond_to?(:name) ? computer.name : computer.to_s
-      "<a href=\"#{url('/computer/' + name)}\">#{h(name)}</a>"
+      "<a href=\"/computer/#{u(name)}\">#{h(name)}</a>"
     end
     def report_link(report)
-      "<a href=\"#{url('/report/' + report.id)}\">#{tlong(report.time)}</a>"
+      "<a href=\"/report/#{u(report.id)}\">#{tlong(report.time)}</a>"
     end
     def status_tag(report)
       status = report.respond_to?(:status) ? report.status : report.to_s
@@ -50,8 +50,8 @@ class App < Sinatra::Base
   end
 
   get '/computer' do
-    @computers = Computer.all.sort_by(&:name).reverse!.sort_by! do |c|
-      c.reports.empty? ? Time.new(0) : c.reports.last.time
+    @computers = Computer.all.sort_by(&:name).reverse!.sort_by do |c|
+      c.reports.empty? ? Time.at(0) : c.reports.last.time
     end.reverse!
     erb :computers
   end
@@ -59,7 +59,7 @@ class App < Sinatra::Base
   get '/computer/:name' do |name|
     @computer = Computer.find_by_name(name) or raise Sinatra::NotFound
     if @computer.reports.empty?
-      last_modified Time.new(0)
+      last_modified Time.at(0)
       etag "#{@computer.name}@0"
     else
       last_modified @computer.reports.last.time

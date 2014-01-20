@@ -57,7 +57,7 @@ class Report < Base
     end
   end
   def resource_statuses
-    @resource_statuses ||= ppo.resource_statuses.values.sort_by! &:time
+    @resource_statuses ||= ppo.resource_statuses.values.sort_by &:time
   end
   alias_method :rs, :resource_statuses
   def resource_lists
