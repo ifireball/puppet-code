@@ -106,13 +106,36 @@ function add_dd_calendar_item(menu) {
 function add_dd_lut_items(menu, th) {
 	//console.log(find_column_cells(th));
 	menu.append('<li role="presentation" class="dropdown-header">Show</li>')
-		.append($('<li role="presentation"><label><input type="radio" name="_tbl_filter" class="_tbl_filter">All</label></li>'));
-	find_column_cells(th).each(function(i, cell) {
-		$('<li role="presetation"></li>')
-		.append($('<label><input type="radio" name="_tbl_filter" class="_tbl_filter"></label>')
-			.append($( cell ).html())
-		).appendTo(menu);
-	});
+		.append($('<li role="presentation"></li>')
+			.append($('<label>All</label>')
+				.prepend($('<input type="radio" name="_tbl_filter" class="_tbl_filter">')
+					.click(function(e) {
+						filter_column($(this).closest('th'), function(td) {
+							return true;
+						});
+					})
+				)
+			)
+		)
+		.append($('<li role="presentation" class="divider"></li>'));
+	_.chain(find_column_cells(th))
+		.map(function(e) { return $(e).html(); })
+		.unique()
+		.each(function(html) {
+			$('<li role="presetation"></li>')
+			.append($('<label></label>')
+				.append($('<input type="radio" name="_tbl_filter" class="_tbl_filter"></label>')
+					.click(function(e) {
+						var $this = $( this );
+						var term = $this.closest('label').text();
+						filter_column($this.closest('th'), function(td) {
+							return td.text() == term;
+						});
+					})
+				)
+				.append(html)
+			).appendTo(menu);
+		});
 	return menu;
 }
 
