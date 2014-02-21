@@ -23,5 +23,12 @@ class site::puppet::master inherits site::puppet::agent {
     manage_storeconfigs => false,
     manage_report_processor => false,
   }
+  class { 'hiera':
+    hierarchy => [
+      'hosts/%{::clientcert}',
+      '%{::environment}',
+      'common',
+    ],
+  }
 }
 

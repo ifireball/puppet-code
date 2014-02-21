@@ -1,0 +1,21 @@
+---
+# common.yaml - Puppet Hiera data file
+site::groups::list:
+        - uucp
+        - wheel
+        - sudo
+Site::Group[uucp]::gid: 14
+Site::Group[wheel]::gid: 10
+Site::Group[sudo]::gid: 27
+site::users::list:
+        - ifireball
+Site::User[ifireball]::uid: 1000
+Site::User[ifireball]::gid: 1000
+Site::User[ifireball]::groups:
+        - ifireball
+        - wheel
+        - sudo
+Site::User[ifireball]::comment: Barak Korren
+Site::User[ifireball]::ssh_public: AAAAB3NzaC1kc3MAAACBAN1nbjGp4KlkNitApWhaZACmNeVOQKu1736mIv7FLJh6wtQyLxknVpJqLJzyGkHkVNT6yvPmt+IvC1AljYYm+3VzRrfdxWHaENbPgGE5L6CAIp+3WMFw0XI7RBf9C6q1BIxhv4uEBESF316ZP4wu1kcZfIxXd99OirYLqxZ6Rei9AAAAFQCYEchu/RrBNuwSsKfxXUDOnciwIwAAAIEAsf/KWEG7ZeIN7ynNgunDuHLOV3JicwC31wTerrMb+HJlNZel0OI1VSgAMB+ON918dt4o4xfYYBewlsv+b0+I4RmBk72lCyKaD2i84wC/UM0egeJsr/1v6mGKZ+eOAsv2opGr4XdVeXaEcMMXcnvkNRq1hxsZfwqYcpIctS03dbwAAACAWwbjTlq6a0QhJqHnLV1o45cz+rqAYzmRR12rV4AVuxONN/Pc5V2tjsvIxYbthcBj1hToElgV70UOxqlQN72G14oSTvOjis5xHmnsXIsRVBb4R2VjuHsUxoO1jkP0Eau/DLnl55jukCgvk4VPIZa7lKuQjUF3wG/egRwJHJLl3Vk=
+Site::User[ifireball]::ssh_public_type: ssh-dss
+

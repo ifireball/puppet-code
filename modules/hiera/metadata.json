@@ -1,0 +1,25 @@
+{
+  "name": "hunner-hiera",
+  "version": "0.3.1",
+  "source": "UNKNOWN",
+  "author": "hunner",
+  "license": "BSD",
+  "summary": "Deploy hiera.yaml with hierarchy, and datadir",
+  "description": "",
+  "project_page": "https://github.com/hunner/hunner-hiera",
+  "dependencies": [
+
+  ],
+  "types": [
+
+  ],
+  "checksums": {
+    "CHANGELOG": "62336d371120d42b87abf4513013faf8",
+    "Modulefile": "6522074c077fd9484ed9139aedbfef03",
+    "README.md": "d47c55ac5cd918d53df4145e1e4f6dbe",
+    "manifests/init.pp": "51be77d58b80c6782895e02fc972a906",
+    "manifests/params.pp": "5371ea8de40aac1bcb0b6ff10d2719e6",
+    "templates/hiera.yaml.erb": "064eff334b210776900232d2e8c72924",
+    "tests/init.pp": "61b7aa1a851c858a5ef0246b047c85bd"
+  }
+}
