@@ -39,6 +39,8 @@ define site::user(
       ensure => directory;
     "$home/.bashrc": 
       source => 'puppet:///modules/site/user/home/.bashrc';
+    "$home/.profile":
+      source => 'puppet:///modules/site/user/home/.profile';
     "$home/.bash_profile":
       source => 'puppet:///modules/site/user/home/.bash_profile';
     "$home/.bash_logout": 
