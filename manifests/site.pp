@@ -6,6 +6,11 @@ node puppetmaster {
   include site::puppet::master
 }
 
+node factory11 {
+  include site::common
+  include ichinga::server
+}
+
 node default {
   include site::common
 }
