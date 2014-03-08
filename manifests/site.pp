@@ -8,7 +8,7 @@ node puppetmaster {
 
 node factory11 {
   include site::common
-  include ichinga::server
+  include icinga::server
 }
 
 node default {

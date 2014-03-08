@@ -1,10 +1,10 @@
-# Class: ichinga::repo
+# Class: icinga::repo
 #
-# Setup software repository for installing ichinga
+# Setup software repository for installing Icinga
 #
-class ichinga::repo {
+class icinga::repo {
   if $::osfamily == 'Debian' {
-    apt::source { 'ichinga-repo':
+    apt::source { 'icinga-repo':
       location => $::operatingsystem ? {
         'Debian' => 'http://debmon.org/debmon',
       },
@@ -13,6 +13,6 @@ class ichinga::repo {
       },
     }
   } else {
-    fail "Ichinga installation is not supported yet on the OS"
+    fail "Icinga installation is not supported yet on this OS"
   }
 }
