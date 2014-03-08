@@ -6,7 +6,7 @@ class site::utils::vim(
   $vimfiles = '/usr/share/vim/vimfiles',
   $packages = $::osfamily ? {
     'RedHat' => [ 'vim-enhanced', 'vim-X11' ],
-    'Debian' => [ 'vim', 'vim-gnome' ], 
+    'Debian' => [ 'vim', 'vim-gnome', 'vim-puppet', ], 
   },
 ) {
   package { $packages:
@@ -34,5 +34,15 @@ class site::utils::vim(
       purge => true,
       links => 'manage',
       source => 'puppet:///modules/site/vim/bundle';
+  }
+  if $::osfamily == 'Debian' {
+    # Enable Puppet VIM plugin on Debian systems
+    $vim_addon_manager = '/usr/bin/vim-addon-manager'
+    $egrep = '/bin/egrep'
+    exec { "$vim_addon_manager -wq install puppet":
+      environment =>'HOME=/root',
+      unless => "$vim_addon_manager -wq status | $egrep -x 'puppet\\s+installed'",
+      require => Package['vim-puppet'],
+    }
   }
 }
