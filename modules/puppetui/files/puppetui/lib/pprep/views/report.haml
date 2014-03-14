@@ -1,0 +1,111 @@
+- layout(:title => "Puppet Report for #{@report.host}",
+  :stylesheets => %w{css/report.css},
+  :scripts => %w{js/report.js},
+  :uplink => '/computer/' + @report.computer.name,
+  :uplink_title => 'Select another report')
+.row
+  .col-sm-5.col-md-4.col-lg-3
+    #summary.panel.panel-default
+      .panel-heading
+        %h2.panel-title Summary
+      .panel-body
+        %table.table.table-condensed.summary
+          %tr
+            %td.tlabel Host:
+            %td.value= computer_link(@report.computer)
+          %tr
+            %td.tlabel Puppet Version:
+            %td.value= @report.puppet_version
+          %tr
+            %td.tlabel Environment:
+            %td.value= @report.environment
+          %tr
+            %td.tlabel Run Start:
+            %td.value= tlong(@report.time)
+          %tr
+            %td.tlabel Status:
+            %td.value= status_tag(@report)
+      / .panel-body
+    / #summary .panel
+    - metrics = @report.metrics.values_at(*%w{resources time events}).compact
+    - unless metrics.empty?
+      #metrics.panel.panel-default
+        .panel-heading
+          %h2.panel-title Metrics
+        .panel-body
+          .pill-content-marker
+            - metrics.each do |metric|
+              .tab-pane{:id => "metrics-#{metric.name}"}
+                %h3.tab-head= metric.label
+                %table.metrics.table.table-condensed
+                  - metric.values.each do |name, label, value|
+                    %tr
+                      %td.tlabel= label
+                      %td.value= format_metric_value(metric.name, name, value)
+          / .pill-content-marker
+        / .panel-body
+      / #metrics .panel
+  / .col
+  .col-sm-7.col-md-8.col-lg-9
+    .tab-content-marker
+      #log.tab-pane
+        %h2.tab-head Log
+        .table-responsive
+          %table.log.table.table-condensed
+            %thead/
+            %tr
+              %th Time
+              %th Level
+              %th Message
+            %tbody
+              - @report.logs.each do |log|
+                %tr{:class => log.level.to_s + ' ' + level2bs_class(log.level)}
+                  %td= tshort(log.time)
+                  %td= log.level
+                  %td
+                    = h((log.source == 'Puppet' ? '' : log.source + ': '))
+                    - if log.message =~ /\A\n/
+                      %pre= format_diff(log.message[1..-1])
+                    - else
+                      = h(log.message)
+        / .table-responsive
+      / #log .tab-pane
+      - unless @report.resource_lists.empty?
+        #resources.tab-pane
+          %h2.tab-head Resources
+          .pill-content-marker
+            - @report.resource_lists.each do |t,rl|
+              .tab-pane{:id => "resources-#{t}"}
+                %h3.tab-head= t.to_s.to_title
+                %ul
+                  - rl.each do |r|
+                    %li
+                      = r.resource || r.containment_path.last
+                      .resource_details
+                        - if r.file
+                          Source:
+                          %a.resouce_source
+                            = h(r.file)
+                            (#{r.line})
+                        - unless r.events.empty?
+                          .table-responsive
+                            %table.resource_changes.table.table-condensed
+                              %caption Changed Properties
+                              %thead
+                                %tr
+                                  %th Property
+                                  %th Old Value
+                                  %th New Value
+                                  %th Change Status
+                              %tbody
+                                - r.events.each do |e|
+                                  %tr
+                                    %td= h(e.property)
+                                    %td= h(e.previous_value)
+                                    %td= h(e.desired_value)
+                                    %td= e.status.to_title
+          / .pill-content-marker
+        / #resources .tab-pane
+    / .tab-content-marker
+  / .col
+/ .row

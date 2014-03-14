@@ -42,6 +42,36 @@ class App < Sinatra::Base
       else '<span class="text-success">No Change Needed</span>'
       end
     end
+    def format_metric_value(metric, name, value)
+      case metric
+        when 'time' then "%.3f sec" % (value)
+        else value
+      end
+    end
+    def level2bs_class(level)
+      (@level2bs_class ||= {
+        :debug => 'active',
+        :info => 'success',
+        :notice => '',
+        :warning => 'warning',
+        :err => 'danger',
+        :alert => 'danger',
+        :energ => 'danger',
+        :crit => 'danger'
+      })[level]
+    end
+    def format_diff(diff, plain_class = 'diff0', old_class = 'diff1', 
+                    new_class = 'diff2', loc_class = 'diffloc')
+      diff.each_line.map do |l| 
+        html_class = case l
+          when /\A-/ then old_class
+          when /\A\+/ then new_class
+          when /\A@/ then loc_class
+          else plain_class
+        end
+        "<span class=\"#{html_class}\">#{h(l)}</span>"
+      end.join
+    end
   end
   helpers ERB::Util
 
@@ -53,7 +83,7 @@ class App < Sinatra::Base
     @computers = Computer.all.sort_by(&:name).reverse!.sort_by do |c|
       c.reports.empty? ? Time.at(0) : c.reports.last.time
     end.reverse!
-    erb :computers
+    haml :computers
   end
 
   get '/computer/:name' do |name|
@@ -65,14 +95,14 @@ class App < Sinatra::Base
       last_modified @computer.reports.last.time
       etag @computer.reports.last.id
     end
-    erb :computer
+    haml :computer
   end
 
   get '/report/:id' do |rid|
     @report = Report.find_by_id(rid) or raise Sinatra::NotFound
     last_modified @report.time
     etag @report.id
-    erb :report
+    haml :report
   end
 end
 

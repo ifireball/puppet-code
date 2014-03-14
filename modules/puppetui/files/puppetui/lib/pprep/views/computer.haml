@@ -1,0 +1,18 @@
+- layout(
+- :title => @computer.name,
+- :uplink => '/computer',
+- :uplink_title => 'Select another computer'
+- )
+- unless @computer.reports.empty?
+  .table-responsive
+    %table.table.table-hover
+      %caption Puppet Reports
+      %thead
+        %tr
+          %th Report time
+          %th Status
+      %tbody
+        - @computer.reports.reverse.each do |r|
+          %tr
+            %td= report_link(r)
+            %td= status_tag(r)

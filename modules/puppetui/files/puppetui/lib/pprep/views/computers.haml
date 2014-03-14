@@ -1,0 +1,26 @@
+- layout(
+- :title => 'Computers'
+- )
+.table-responsive
+  %table.table.table-hover
+    %thead
+      %tr
+        %th.tcol-name Hostname
+        %th.tcol-lut Environment
+        %th.tcol-date Last Report
+        %th.tcol-lut Status
+    %tbody
+      - @computers.each do |c|
+        %tr
+          %td= computer_link(c)
+          - if c.reports.empty?
+            %td
+              %span.text-muted unknown
+            %td
+              %span.text-muted not found
+            %td
+              %span.text-muted unknown
+          - else
+            %td= c.reports.last.environment
+            %td= report_link(c.reports.last)
+            %td= status_tag(c.reports.last)

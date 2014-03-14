@@ -108,7 +108,7 @@ function add_dd_lut_items(menu, th) {
 	menu.append('<li role="presentation" class="dropdown-header">Show</li>')
 		.append($('<li role="presentation"></li>')
 			.append($('<label>All</label>')
-				.prepend($('<input type="radio" name="_tbl_filter" class="_tbl_filter">')
+				.prepend($('<input type="radio" name="_tbl_filter" class="_tbl_filter" checked>')
 					.click(function(e) {
 						filter_column($(this).closest('th'), function(td) {
 							return true;
