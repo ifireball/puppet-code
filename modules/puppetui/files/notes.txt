@@ -125,3 +125,77 @@ This is important if you gonna package other stuff:
 
   rm -rfv ~/.gem
 
+
+Creating OPAL packages
+======================
+
+What are we installing?
+-----------------------
+
+* opal - The compiler itself
+* opal-haml - HAML support for OPAL
+* opal-jquery - JQuery API for OPAL
+* opal-activesupport - ActiveSupport goodness
+* sinatra-asset-pipeline - Sprockets integration with Sinatra
+* sprockets-helpers - Needed by sinatra-asset-pipeline 
+* sprockets-sass - Needed by sinatra-asset-pipeline 
+
+Stuff we don't need
+-------------------
+
+These gems still exist but it seems the funcionality was merged into the opal
+gem itself:
+
+* opal-sprockets
+* opal-erb
+
+Needed Pakages
+--------------
+
+* ruby-sprockets needed by opal and sinatra-asset-pipeline 
+* rake needed by sinatra-asset-pipeline 
+* ruby-sinatra needed by sinatra-asset-pipeline 
+* ruby-sass needed by sinatra-asset-pipeline 
+* ruby-tilt needed by sprockets-sass
+
+Gems and Requirements
+---------------------
+
+* source_map requires json
+* opal requires source_map, sprockets
+* opal-sprockets requires sprockets, opal
+* sprockets-helpers requires sprockets 
+* sprockets-sass requires sprockets, tilt
+* sinatra-asset-pipeline requires rake, sinatra, sass, coffee-script, sprockets,
+  sprockets-sass, sprockets-helpers
+
+Commands for packaging
+----------------------
+
+  fpm --prefix /var/lib/gems/1.9.1 -s gem -t deb -d ruby1.9.1 -d ruby-json \
+    --no-auto-depends source_map
+
+  fpm --prefix /var/lib/gems/1.9.1 -s gem -t deb -d ruby1.9.1 \
+    -d rubygem-source-map -d ruby-sprockets --no-auto-depends opal
+
+  fpm --prefix /var/lib/gems/1.9.1 -s gem -t deb -d ruby1.9.1 \
+    -d 'rubygem-opal << 1.0.0' -d 'rubygem-opal >= 0.5.0' -d ruby-haml \
+    --no-auto-depends opal-haml
+
+  fpm --prefix /var/lib/gems/1.9.1 -s gem -t deb -d ruby1.9.1 opal-jquery
+
+  fpm --prefix /var/lib/gems/1.9.1 -s gem -t deb -d ruby1.9.1 opal-activesupport
+
+  fpm --prefix /var/lib/gems/1.9.1 -s gem -t deb -d ruby1.9.1 \
+    -d 'ruby-sprockets >= 2.0' -d 'ruby-sprockets << 3.0' --no-auto-depends \
+    sprockets-helpers
+
+  fpm --prefix /var/lib/gems/1.9.1 -s gem -t deb -d ruby1.9.1 \
+    -d 'ruby-sprockets >= 2.0' -d 'ruby-sprockets << 3.0' -d ruby-tilt \
+    --no-auto-depends sprockets-sass
+
+  fpm --prefix /var/lib/gems/1.9.1 -s gem -t deb -d ruby1.9.1 -d rake \
+    -d ruby-sinatra -d ruby-sass -d ruby-coffee-script -d ruby-sprockets \
+    -d rubygem-sprockets-sass -d rubygem-sprockets-helpers --no-auto-depends \
+    sinatra-asset-pipeline
+

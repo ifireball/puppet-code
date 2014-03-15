@@ -1,8 +1,7 @@
-- layout(
-- :title => @computer.name,
-- :uplink => '/computer',
-- :uplink_title => 'Select another computer'
-- )
+- layout( :title => @computer.name,
+  :uplink => '/computer',
+  :uplink_title => 'Select another computer', 
+  :scripts => [ javascript_path('datagrid') ])
 - unless @computer.reports.empty?
   .table-responsive
     %table.table.table-hover

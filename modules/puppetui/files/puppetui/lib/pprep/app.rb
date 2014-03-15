@@ -2,17 +2,61 @@
 # app.rp
 #   Sinatra web application component of PPrep
 #
+require 'opal'
+require 'sprockets'
 require 'sinatra/base'
+require 'sinatra/asset_pipeline'
 
 class App < Sinatra::Base
   include Model
 
   set :logging, true
   set :root, File.dirname(__FILE__)
+  set :sprockets, Opal::Environment.new(root)
+  set :digest_assets, true
 
+  get '/' do
+    'Hello world from PPrep::App'
+  end
+
+  get '/computer' do
+    @computers = Computer.all.sort_by(&:name).reverse!.sort_by do |c|
+      c.reports.empty? ? Time.at(0) : c.reports.last.time
+    end.reverse!
+    haml :computers
+  end
+
+  get '/computer/:name' do |name|
+    @computer = Computer.find_by_name(name) or raise Sinatra::NotFound
+    if @computer.reports.empty?
+      last_modified Time.at(0)
+      etag "#{@computer.name}@0"
+    else
+      last_modified @computer.reports.last.time
+      etag @computer.reports.last.id
+    end
+    haml :computer
+  end
+
+  get '/report/:id' do |rid|
+    @report = Report.find_by_id(rid) or raise Sinatra::NotFound
+    last_modified @report.time
+    etag @report.id
+    haml :report
+  end
+
+  get '/dg' do
+    settings.sprockets['datagrid']
+  end
+
+  configure do
+    sprockets.append_path File.join(root, 'assets')
+  end
+
+  register Sinatra::AssetPipeline
   helpers do
     def hres(res)
-      "/#{res}"
+      "/#{res[/^\/?(.*)/,1]}"
     end
     def layout(params)
       params.each do |param, value|
@@ -74,35 +118,5 @@ class App < Sinatra::Base
     end
   end
   helpers ERB::Util
-
-  get '/' do
-    'Hello world from PPrep::App'
-  end
-
-  get '/computer' do
-    @computers = Computer.all.sort_by(&:name).reverse!.sort_by do |c|
-      c.reports.empty? ? Time.at(0) : c.reports.last.time
-    end.reverse!
-    haml :computers
-  end
-
-  get '/computer/:name' do |name|
-    @computer = Computer.find_by_name(name) or raise Sinatra::NotFound
-    if @computer.reports.empty?
-      last_modified Time.at(0)
-      etag "#{@computer.name}@0"
-    else
-      last_modified @computer.reports.last.time
-      etag @computer.reports.last.id
-    end
-    haml :computer
-  end
-
-  get '/report/:id' do |rid|
-    @report = Report.find_by_id(rid) or raise Sinatra::NotFound
-    last_modified @report.time
-    etag @report.id
-    haml :report
-  end
 end
 
