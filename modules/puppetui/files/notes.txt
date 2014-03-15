@@ -1,0 +1,127 @@
+Creating FPM package on Ubuntu
+==============================
+
+Needed packages
+---------------
+
+* ruby-dev - To compile native extnsions included in gems
+* rubygems-integration - To make the 'gem' command know about the native packages
+* ruby-addressable - Required by 'ftw' gem
+* ruby-ffi - Required by 'fpm' gem
+* ruby-childprocess - Rquired by 'fpm' gem
+* ruby-backports - Required by 'ftw' gem
+* ruby-json - Rquired by 'fpm' gem
+
+Install FPM and dependencies in home dir
+----------------------------------------
+
+Clean up any gems installed in the home directory, otherwise we may not get
+accurate dependecies installed:
+
+  rm -rfv ~/.gem
+
+This will destroy any gems you may have locally installed, but you were gonna
+package them up anyway no?
+
+Installing in order to find out the dependencies and package FPM with FPM...
+
+  gem install --conservative --user-install --no-ri --no-rdoc fpm
+
+Sample output:
+
+  Fetching: cabin-0.6.1.gem (100%)
+  WARNING:  You don't have ~/.gem/ruby/1.9.1/bin in your PATH,
+	    gem executables will not run.
+  Fetching: arr-pm-0.0.9.gem (100%)
+  Fetching: http_parser.rb-0.5.3.gem (100%)
+  Building native extensions.  This could take a while...
+  Fetching: ftw-0.0.39.gem (100%)
+  Fetching: clamp-0.6.3.gem (100%)
+  Fetching: fpm-1.0.2.gem (100%)
+  Successfully installed cabin-0.6.1
+  Successfully installed arr-pm-0.0.9
+  Successfully installed http_parser.rb-0.5.3
+  Successfully installed ftw-0.0.39
+  Successfully installed clamp-0.6.3
+  Successfully installed fpm-1.0.2
+  6 gems installedo
+
+This might be needed if your 'umask' settings are somewhat restrictive:
+
+  chmod -R o+rX ~/.gem
+
+Researcihng dependencies in case FPM gets them wrong
+----------------------------------------------------
+
+To see dependendies of installed gem (E.g. 'ftw'):
+
+  gem specification ftw 
+
+Note if the requirement is for development or runtime, you need only runtime.
+What I found:
+
+* cabin requires nothing
+* arr-pm requires cabin
+* http_parser.rb requires nothing (Got many dev. requirements though)
+* ftw requires cabin, http_parser.rb, addressable, backports
+* clamp requires nothing
+* fpm requires json, cabin, backports, arr-pm, ftw, clamp, childprocess, ffi
+
+Converting GEMS to packages
+---------------------------
+
+Run `gem environment` to find out where packages should place files, possible
+paths will be liste under GEM PATHS, in Ubuntu its '/var/lib/gems/1.9.1'
+
+Thie following might be needed in order to produce usable packages:
+  
+  umask 022
+
+If set to a more restrictive value, you may end up generating packages that are
+only usable by root.
+
+As long as the package has no dependencies or depends only on packages created
+by FPM, we can let FPM handle everything:
+
+  ~/.gem/ruby/1.9.1/bin/fpm --prefix /var/lib/gems/1.9.1 -s gem -t deb \
+    -d ruby1.9.1 ~/.gem/ruby/1.9.1/cache/cabin-0.6.1.gem
+
+  ~/.gem/ruby/1.9.1/bin/fpm --prefix /var/lib/gems/1.9.1 -s gem -t deb \
+    -d ruby1.9.1 ~/.gem/ruby/1.9.1/cache/arr-pm-0.0.9.gem 
+
+  ~/.gem/ruby/1.9.1/bin/fpm --prefix /var/lib/gems/1.9.1 -s gem -t deb \
+    -d ruby1.9.1 ~/.gem/ruby/1.9.1/cache/http_parser.rb-0.5.3.gem
+
+  ~/.gem/ruby/1.9.1/bin/fpm --prefix /var/lib/gems/1.9.1 -s gem -t deb \
+    -d ruby1.9.1 ~/.gem/ruby/1.9.1/cache/clamp-0.6.3.gem
+
+Unfortunatly, FPM cannot figure out the Ubuntu-packaged gems so we need to
+inject dependencies for them manually:
+
+  ~/.gem/ruby/1.9.1/bin/fpm --prefix /var/lib/gems/1.9.1 -s gem -t deb \
+    -d ruby1.9.1 -d rubygem-cabin -d rubygem-http-parser.rb \
+    -d ruby-addressable -d ruby-backports --no-auto-depends \
+    ~/.gem/ruby/1.9.1/cache/ftw-0.0.39.gem
+
+  ~/.gem/ruby/1.9.1/bin/fpm --prefix /var/lib/gems/1.9.1 -s gem -t deb \
+    -d ruby1.9.1 -d ruby-json -d rubygem-cabin -d ruby-backports \
+    -d rubygem-arr-pm -d rubygem-ftw -d rubygem-clamp -d ruby-childprocess \
+    -d ruby-ffi --no-auto-depends \
+    ~/.gem/ruby/1.9.1/cache/fpm-1.0.2.gem 
+
+Install
+-------
+
+Just let 'dpkg' handle everything:
+
+  sudo dpkg -i rubygem-arr-pm_0.0.9_all.deb rubygem-cabin_0.6.1_all.deb \
+    rubygem-clamp_0.6.3_all.deb rubygem-fpm_1.0.2_all.deb \
+    rubygem-ftw_0.0.39_all.deb rubygem-http-parser.rb_0.5.3_amd64.deb
+
+Clean up
+--------
+
+This is important if you gonna package other stuff:
+
+  rm -rfv ~/.gem
+
