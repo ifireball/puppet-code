@@ -3,6 +3,8 @@
 #   Sinatra web application component of PPrep
 #
 require 'opal'
+require 'opal-jquery'
+require 'opal-haml'
 require 'sprockets'
 require 'sinatra/base'
 require 'sinatra/asset_pipeline'
@@ -16,7 +18,10 @@ class App < Sinatra::Base
   set :digest_assets, true
 
   get '/' do
-    'Hello world from PPrep::App'
+    s = 'Hello world from PPrep::App<br>'
+    s << 'looking for opal code in:<br><ul>'
+    settings.sprockets.paths.each { |p| s << '<li>' << p }
+    s << '</ul>'
   end
 
   get '/computer' do
@@ -45,12 +50,22 @@ class App < Sinatra::Base
     haml :report
   end
 
-  get '/dg' do
-    settings.sprockets['datagrid']
+  get %r{^/__opal_source_maps__/(.*)} do 
+    path_info = params[:captures].first
+    logger.info "Source map requested: #{path_info}"
+    if path_info =~ /\.js\.map$/
+      path = path_info.gsub(/^\/|\.js\.map$/, '')
+      asset = settings.sprockets[path]
+      raise Sinatra::NotFound if asset.nil?
+      headers "Content-Type" => "text/json"
+      body $OPAL_SOURCE_MAPS[asset.pathname].to_s
+    else
+      send_file settings.sprockets.resolve(path_info), :type => 'text/text'
+    end
   end
 
   configure do
-    sprockets.append_path File.join(root, 'assets')
+    sprockets.append_path root
   end
 
   register Sinatra::AssetPipeline

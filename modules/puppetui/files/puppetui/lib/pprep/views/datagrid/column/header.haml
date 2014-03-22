@@ -1,0 +1,9 @@
+= @title
+%button.btn.btn-default.btn-xs.pull-right
+  - case @sorting
+  - when :asc
+    %span.glyphicon.glyphicon-chevron-down
+  - when :desc
+    %span.glyphicon.glyphicon-chevron-up
+  - else
+    %span.glyphicon.glyphicon-minus
