@@ -97,12 +97,54 @@ class DataGrid < EnhancedElement
     def search_bar
       @search_bar ||= DataGrid::Column::SearchBar.new(self)
     end
-    def filter(filter)
-      puts "You should probably implement filter for #{self.class}"
+    def filter(*filter)
+      col_index = @datagrid.column_index(self)
+      @datagrid.rows.each do |row|
+        row.hide(self) do
+          cell = row.elm.children('td').at(col_index)
+          filter_cell(cell, *filter)
+        end
+      end
     end
     private
     def enhance_element
       elm.html = Template['views/datagrid/column/header'].render(self)
+    end
+    def filter_cell(cell, term)
+      not cell.text.downcase.include?(term)
+    end
+  end
+
+  class Row < EnhancedElement
+    def initialize(datagrid, &bl)
+      @datagrid = datagrid
+      super &bl
+    end
+    def hide(reason, to_hide = true)
+      raise "Must provide reason for hiding" if reason.nil?
+      to_hide = ! to_hide ^ yield if block_given?
+      @hide_reasons ||= {}
+      if to_hide
+        @hide_reasons[reason] = true
+      else
+        @hide_reasons.delete reason
+      end
+      if @hide_reasons.empty?
+        elm.show
+        false
+      else
+        elm.hide
+        true
+      end
+    end
+    def show(reason, to_show = true, &bl)
+      !hide reason, !to_show, &bl
+    end
+    private
+    def enhance_element
+    end
+    def hide_reasons
+      @hide_reasons ||= {}
     end
   end
 
@@ -114,10 +156,18 @@ class DataGrid < EnhancedElement
       (@columns ||= []) << col
     end
   end
+  def column_index(col)
+    (@columns ||= []).index(col) or
+      raise 'Column not assigned to grid'
+  end
+  def rows
+    (@rows ||= []).enum_for
+  end
   private
   def enhance_element
     enhance_headers
     create_search_bar
+    enhence_rows
   end
   def enhance_headers
     columns.zip(elm.find('thead tr th').to_a).each do |col, col_elm|
@@ -130,6 +180,11 @@ class DataGrid < EnhancedElement
     elm.find('thead') << @search_bar
     columns.each do |col|
       @search_bar << col.search_bar.create
+    end
+  end
+  def enhence_rows
+    @rows = elm.find('tbody tr').map do |e|
+      DataGrid::Row.new(self).attach(e)
     end
   end
 end
