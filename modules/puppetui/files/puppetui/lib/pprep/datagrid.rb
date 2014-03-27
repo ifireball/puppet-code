@@ -89,8 +89,8 @@ class DataGrid < EnhancedElement
       end
     end
 
-    def initialize(datagrid, title, id = nil, &bl)
-      @datagrid, @title = datagrid, title
+    def initialize(datagrid, title, id = nil, sorting = :unsorted, &bl)
+      @datagrid, @title, @sorting = datagrid, title, sorting
       super id, &bl
     end
     attr_reader :title, :sorting
@@ -98,20 +98,49 @@ class DataGrid < EnhancedElement
       @search_bar ||= DataGrid::Column::SearchBar.new(self)
     end
     def filter(*filter)
-      col_index = @datagrid.column_index(self)
-      @datagrid.rows.each do |row|
-        row.hide(self) do
-          cell = row.elm.children('td').at(col_index)
-          filter_cell(cell, *filter)
-        end
+      each_cell_element do |row, cell_elm|
+        row.hide(self, filter_cell(cell_elm, *filter))
       end
     end
+    def sort(direction = :asc)
+      col_index = @datagrid.column_index(self)
+      @datagrid.sort_by(direction) do |row|
+        cell_sort_value(row.cell_element_at(col_index))
+      end
+      @@sort_glyphs ||= { 
+        :asc => 'glyphicon-chevron-up',
+        :desc => 'glyphicon-chevron-down',
+        :unsorted => 'glyphicon-minus',
+      }
+      @sort_icon.remove_class @@sort_glyphs[@sorting]
+      @sorting = direction
+      @sort_icon.add_class @@sort_glyphs[@sorting]
+    end
+    protected
+    def each_cell_element(&bl)
+      col_index = @datagrid.column_index(self)
+      @datagrid.rows.each do |row|
+        yield row, row.cell_element_at(col_index)
+      end
+    end
+    def cell_elements
+      enum_for(self, :each_cell_element)
+    end
+    def cell_value(cell)
+      cell.text.downcase
+    end
+    alias cell_sort_value cell_value
     private
     def enhance_element
       elm.html = Template['views/datagrid/column/header'].render(self)
+      @btn = elm.find('button')
+      @sort_icon = @btn.find('span')
+      @btn.on :click do
+        sort @sorting == :asc ? :desc : :asc
+      end
     end
     def filter_cell(cell, term)
-      not cell.text.downcase.include?(term)
+      not cell_value(cell).include?(term)
     end
   end
 
@@ -140,11 +169,14 @@ class DataGrid < EnhancedElement
     def show(reason, to_show = true, &bl)
       !hide reason, !to_show, &bl
     end
+    def cell_element_at(col_index)
+      elm.children('td').at(col_index)
+    end
+    def cell_celement(col)
+      cell_element_at(@datagrid.column_index(col))
+    end
     private
     def enhance_element
-    end
-    def hide_reasons
-      @hide_reasons ||= {}
     end
   end
 
@@ -162,6 +194,11 @@ class DataGrid < EnhancedElement
   end
   def rows
     (@rows ||= []).enum_for
+  end
+  def sort_by(direction = :asc, &bl)
+    sorted = rows.sort_by(&bl)
+    sorted.reverse! if direction == :desc
+    elm.find('tbody') << (sorted.map &:elm)
   end
   private
   def enhance_element
