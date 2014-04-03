@@ -7,8 +7,8 @@ require 'module_require'
 require 'string_to_title'
 
 module PPrep
-  submodule_require('model')
-  submodule_require_all
+  submodule_require 'model'
+  submodule_require 'app'
 
   class << self
     def run_app
