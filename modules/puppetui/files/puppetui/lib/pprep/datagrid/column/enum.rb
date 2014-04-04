@@ -25,7 +25,7 @@ class DataGrid < EnhancedElement
       end
       def resort
         return if @sort_keys.nil? || @sort_keys.empty?
-        sorted = (@sort_keys ||= {}).keys.each_with_index.to_a
+        sorted = (@sort_keys ||= {}).keys.sort.each_with_index.to_a
         @max_sort_by = sorted.last[1]
         @sort_keys = Hash[sorted]
         self
