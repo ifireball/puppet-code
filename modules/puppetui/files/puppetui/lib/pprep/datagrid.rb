@@ -9,16 +9,7 @@ require 'enhancedelement'
 if RUBY_ENGINE == 'opal'
   require 'opal-haml'
   require 'template'
-  require 'views/datagrid/column/header'
-  require 'views/datagrid/column/searchbar'
 end
-
-    begin
-    rescue Exception => e
-      puts e.message
-      e.backtrace.each {|l| puts l}
-      raise e
-    end
 
 class DataGrid < EnhancedElement
   require 'datagrid/column'
@@ -46,9 +37,9 @@ class DataGrid < EnhancedElement
   end
   private
   def enhance_element
+    enhence_rows
     enhance_headers
     create_search_bar
-    enhence_rows
   end
   def enhance_headers
     columns.zip(elm.find('thead tr th').to_a).each do |col, col_elm|
@@ -73,7 +64,7 @@ end
 if RUBY_ENGINE == 'opal'
   dg = DataGrid.new 'reports' do
     column 'Report Time'
-    column 'Status'
+    column 'Status', DataGrid::Column::Enum
   end
   Document.ready? do
     begin

@@ -1,9 +1,15 @@
 # datagrid/column.rb
 #   Class for managing datagrid columns
 #
+if RUBY_ENGINE == 'opal'
+  require 'views/datagrid/column/header'
+  require 'views/datagrid/column/searchbar'
+end
+
 class DataGrid < EnhancedElement
   class Column < EnhancedElement
     require 'datagrid/column/searchbar'
+    require 'datagrid/column/enum'
 
     def initialize(datagrid, title, id = nil, sorting = :unsorted, &bl)
       @datagrid, @title, @sorting = datagrid, title, sorting
@@ -11,7 +17,7 @@ class DataGrid < EnhancedElement
     end
     attr_reader :title, :sorting
     def search_bar
-      @search_bar ||= DataGrid::Column::SearchBar.new(self)
+      @search_bar ||= self.class.const_get(:SearchBar).new(self)
     end
     def filter(*filter)
       each_cell_element do |row, cell_elm|
@@ -33,7 +39,7 @@ class DataGrid < EnhancedElement
       @sort_icon.add_class @@sort_glyphs[@sorting]
     end
     protected
-    def each_cell_element(&bl)
+    def each_cell_element
       col_index = @datagrid.column_index(self)
       @datagrid.rows.each do |row|
         yield row, row.cell_element_at(col_index)
