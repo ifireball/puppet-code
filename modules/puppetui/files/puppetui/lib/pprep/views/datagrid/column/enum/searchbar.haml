@@ -1,13 +1,13 @@
 %td
-  %label
-    Show:
-    %div.btn-group.btn-group-sm
+  %label.input-group.input-group-sm
+    %span.form-control.selected-enum-value
+      All
+    %div.input-group-btn
       %button.btn.btn-default.dropdown-toggle{:type => "button", 
         "data-toggle" => "dropdown"}
-        %span.selected-enum-value
-          All
+        Show
         %span.caret
-      %ul.dropdown-menu{:role => "menu"}
+      %ul.dropdown-menu.pull-right{:role => "menu"}
         %li 
           %a{:href => "#"}
             All
