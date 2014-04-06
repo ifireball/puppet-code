@@ -10,6 +10,7 @@ class DataGrid < EnhancedElement
   class Column < EnhancedElement
     require 'datagrid/column/searchbar'
     require 'datagrid/column/enum'
+    require 'datagrid/column/date'
 
     def initialize(datagrid, title, id = nil, sorting = :unsorted, &bl)
       @datagrid, @title, @sorting = datagrid, title, sorting
@@ -49,9 +50,11 @@ class DataGrid < EnhancedElement
       enum_for(self, :each_cell_element)
     end
     def cell_value(cell)
-      cell.text.downcase
+      cell.text.to_s
     end
-    alias cell_sort_value cell_value
+    def cell_sort_value(cell)
+      cell_value(cell).to_s.downcase
+    end
     private
     def enhance_element
       elm.html = Template['views/datagrid/column/header'].render(self)
@@ -62,7 +65,7 @@ class DataGrid < EnhancedElement
       end
     end
     def filter_cell(cell, term)
-      not cell_value(cell).include?(term)
+      not cell_value(cell).to_s.downcase.include?(term.to_s.downcase)
     end
   end
 

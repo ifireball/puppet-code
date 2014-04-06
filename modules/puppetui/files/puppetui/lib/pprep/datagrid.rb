@@ -63,7 +63,7 @@ end
 
 if RUBY_ENGINE == 'opal'
   dg = DataGrid.new 'reports' do
-    column 'Report Time'
+    column 'Report Time', DataGrid::Column::Date
     column 'Status', DataGrid::Column::Enum
   end
   Document.ready? do
