@@ -2,10 +2,6 @@
 #   Class for managing datagrid columns with a limited set of fixed, labled
 #   values
 #
-if RUBY_ENGINE == 'opal'
-  require 'views/datagrid/column/enum/searchbar'
-end
-
 class DataGrid < EnhancedElement
   class Column < EnhancedElement
     class Enum < DataGrid::Column

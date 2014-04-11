@@ -1,0 +1,64 @@
+.tight-form-label { 
+	text-align: center; 
+}
+.tight-form-row { 
+	text-align: center; 
+	margin-bottom: 5px 
+}
+.tight-form-row .dropdown-menu {
+	text-align: left; 
+	min-width: 0; 
+}
+.tight-form-row .dropdown-menu .scrolled-menu {
+        list-style: none outside none;
+        max-height: 8em;
+        overflow-y: auto;
+        margin: 0px 5px;
+        padding: 0px;
+}
+.tight-form-row .dropdown-menu .scrolled-menu a {
+        display: block;
+        padding: 3px 34px 3px 14px;
+        color: #333;
+        font-weight: 400;
+}
+.tight-form-row .dropdown-menu .scrolled-menu a:hover {
+        text-decoration: none;
+        color: #262626;
+        background-color: #F5F5F5;
+}
+.open-stay > .dropdown-menu {
+	display: block; 
+}
+.open-stay > .btn-default {
+	background-color: #EBEBEB; 
+}
+.input-group-btn:last-child > .btn.drop-stay-toggle {
+	border-bottom-right-radius: 3px !important;
+	border-top-right-radius: 3px !important;
+}
+table.calendar { 
+	padding: 0px;
+	margin: 0px;
+}
+table.calendar > tbody > tr > td, table.calendar > thead > tr > th {
+	padding: 1px;
+	text-align: center; 
+}
+table.calendar a {
+        display: block;
+        padding: 3px;
+        color: #333;
+        font-weight: 400;
+}
+table.calendar a:hover {
+        text-decoration: none;
+        color: #262626;
+        background-color: #F5F5F5;
+}
+.dropdown-form {
+	padding: 4px 10px;
+}
+.dropdown-misc {
+	padding: 4px;
+}

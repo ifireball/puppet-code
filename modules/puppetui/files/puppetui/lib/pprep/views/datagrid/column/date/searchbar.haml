@@ -1,0 +1,105 @@
+%td
+  %label.input-group.input-group-sm
+    %span.form-control.date-search-display At: 2014
+    .input-group-btn
+      %button.btn.btn-default.drop-stay-toggle
+        Show
+        %span.caret
+      %ul.dropdown-menu.pull-right.drop-stay-menu
+        %li.dropdown-form
+          .tight-form-row
+            .btn-group.btn-group-sm(data-toggle="buttons")
+              %label.btn.btn-default.active
+                %input{:type => :radio, :name => :operator} 
+                Before
+              %label.btn.btn-default
+                %input{:type => :radio, :name => :operator} 
+                At
+              %label.btn.btn-default
+                %input{:type => :radio, :name => :operator} 
+                After
+          .tight-form-row
+            %label.tight-form-col.year-select
+              .tight-form-label Year
+              .btn-group.btn-group-sm.fake-select
+                %button.btn.btn-default.dropdown-toggle(data-toggle="dropdown")
+                  %span.fake-select-text Any
+                  %span.caret
+                %ul.dropdown-menu
+                  %li
+                    %a{:href => "#"} Any
+                  %li.divider
+                  %li
+                    %ul.scrolled-menu
+                      - 2012.upto(2015) do |y|
+                        %li
+                          %a{:href => "#"}= "%0.2d" % y
+            %label.tight-form-col.month-select
+              .tight-form-label Month
+              .btn-group.btn-group-sm.fake-select
+                %button.btn.btn-default.dropdown-toggle(data-toggle="dropdown")
+                  %span.fake-select-text Any
+                  %span.caret
+                %ul.dropdown-menu
+                  %li
+                    %a{:href => "#"} Any
+                  %li.divider
+                  %li
+                    %ul.scrolled-menu
+                      - 1.upto(12) do |m|
+                        %li
+                          %a{:href => "#"}= Time.new(0,m).strftime "%b"
+            %label.tight-form-col.day-select
+              .tight-form-label Day
+              .btn-group.btn-group-sm.fake-select
+                %button.btn.btn-default.dropdown-toggle(data-toggle="dropdown")
+                  %span.fake-select-text Any
+                  %span.caret
+                %ul.dropdown-menu.pull-right
+                  %li
+                    %a{:href => "#"} Any
+                  %li.divider
+                  %li.dropdown-misc
+                    %table.table.calendar
+                      %thead
+                        - days_of_week.each do |d|
+                          %th= d
+                      %tbody
+                        - calendar.each do |week|
+                          %tr
+                            - week.each do |d|
+                              %td
+                                - unless d.nil?
+                                  %a{:href => "#"}= d
+          .tight-form-row.hour-select
+            %label.tight-form-col.hour-select
+              .tight-form-label Hour
+              .btn-group.btn-group-sm.fake-select
+                %button.btn.btn-default.dropdown-toggle(data-toggle="dropdown")
+                  %span.fake-select-text Any
+                  %span.caret
+                %ul.dropdown-menu
+                  %li
+                    %a{:href => "#"} Any
+                  %li.divider
+                  %li
+                    %ul.scrolled-menu
+                      - 0.upto(23) do |h|
+                        %li
+                          %a{:href => "#"}= "%0.2d" % h
+            %label.tight-form-col.minute-select
+              .tight-form-label Minute
+              .btn-group.btn-group-sm.fake-select
+                %button.btn.btn-default.dropdown-toggle(data-toggle="dropdown")
+                  %span.fake-select-text Any
+                  %span.caret
+                %ul.dropdown-menu
+                  %li
+                    %a{:href => "#"} Any
+                  %li.divider
+                  %li
+                    %ul.scrolled-menu
+                      - 0.upto(59) do |m|
+                        %li
+                          %a{:href => "#"}= "%0.2d" % m
+

@@ -1,6 +1,10 @@
 # datagrid/column/enum/searchbar.rb
 #   SearchBar class for Enum columns
 #
+if RUBY_ENGINE == 'opal'
+  require 'views/datagrid/column/enum/searchbar'
+end
+
 class DataGrid < EnhancedElement
   class Column < EnhancedElement
     class Enum < DataGrid::Column
