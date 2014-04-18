@@ -69,10 +69,10 @@ helpers do
     '!!!
 %html
   %head
-    %title QHtml Editor
+    %title Simple Bootstrap Page
     %meta{:content => "width=device-width, initial-scale=1.0", :name => "viewport"}
+    %script{:src => "//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1-beta1/jquery.min.js"}
     %link{:rel => "stylesheet", :href => "//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css"}
-    %script{:src => "https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"}
     %script{:src => "//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"}
   %body'
   end
@@ -95,23 +95,25 @@ __END__
   %head
     %title QHtml Editor
     %meta{:content => "width=device-width, initial-scale=1.0", :name => "viewport"}
+    %script{:src => "//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1-beta1/jquery.min.js"}
     %link{:rel => "stylesheet", :href => "//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css"}
-    %link{:rel => "stylesheet", :href => "/style"}
-    %script{:src => "https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"}
     %script{:src => "//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"}
+    %link{:rel => "stylesheet", :href => "//cdnjs.cloudflare.com/ajax/libs/codemirror/4.0.3/codemirror.min.css"}
+    %script{:src => "//cdnjs.cloudflare.com/ajax/libs/codemirror/4.0.3/codemirror.min.js"}
+    %script{:src => "//cdnjs.cloudflare.com/ajax/libs/codemirror/4.0.3/keymap/vim.min.js"}
+    %script{:src => "//cdnjs.cloudflare.com/ajax/libs/codemirror/4.0.3/mode/xml/xml.min.js"}
+    %script{:src => "//cdnjs.cloudflare.com/ajax/libs/codemirror/4.0.3/mode/css/css.min.js"}
+    %script{:src => "//cdnjs.cloudflare.com/ajax/libs/codemirror/4.0.3/mode/htmlmixed/htmlmixed.min.js"}
+    %script{:src => "//cdnjs.cloudflare.com/ajax/libs/codemirror/4.0.3/mode/javascript/javascript.min.js"}
+    %script{:src => "//cdnjs.cloudflare.com/ajax/libs/codemirror/4.0.3/mode/ruby/ruby.min.js"}
+    %script{:src => "//cdnjs.cloudflare.com/ajax/libs/codemirror/4.0.3/mode/haml/haml.min.js"}
+    %link{:rel => "stylesheet", :href => "/style"}
   %body
     = yield
 
 @@editor
-:css
-  .code-editor {
-    font-family: monospace;
-  }
-  body {
-    padding-top: 50px;
-  }
-%form{:method => "post", :action => "/viewer", :target => "viewer"}
-  .navbar.navbar-default.navbar-fixed-top
+%form.app-layout{:method => "post", :action => "/viewer", :target => "viewer"}
+  .navbar.navbar-default.app-layout-navbar
     .container-fluid
       .navbar-header
         %button.navbar-toggle{:type => 'button', :data => {:toggle => 'collapse', :target => '#navbar-collapse'}}
@@ -133,8 +135,16 @@ __END__
         .navbar-form.navbar-right
           .form-group
             %input.form-control.btn.btn-default{:type => 'submit', :value => 'Evaluate'}
-  .form-group
-    %textarea.form-control.code-editor{:name => :src, :rows => 10}= @skel
+  .app-layout-content
+    %textarea.main-editor{:name => :src, :rows => 10}= @skel
+:javascript
+  $(document).ready(function() {
+    CodeMirror.fromTextArea($('textarea.main-editor').get(0), {
+      mode: "text/x-haml",
+      vimMode: true,
+      lineNumbers: true,
+    });
+  });
  
 @@viewer
 .container 
@@ -144,6 +154,47 @@ __END__
       %p Just type HAML into the form below and click submit
 
 @@style
+.app-layout {
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  width: auto;
+  height: auto;
+  overflow: hidden;
+}
+.app-layout-navbar {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  right: 0px;
+  width: auto;
+  height: 50px;
+  overflow: hidden;
+}
+.app-layout-content {
+  position: absolute;
+  left: 0px;
+  top: 50px;
+  right: 0px;
+  bottom: 0px;
+  width: auto;
+  height: auto;
+  overflow: hidden;
+}
+.CodeMirror {
+  height: 100%;
+  width:100%;
+}
+.main-editor {
+  font-family: monospace;
+  height: 100%;
+  width:100%;
+  resize: none;
+  border: none;
+  overflow: auto;
+}
 
 @@opal_wrapper
 require 'opal'
