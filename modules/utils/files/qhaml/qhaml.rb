@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # qhaml.rb - Quick and dirty Sinatra-based haml editor
 #
+require "bundler"
+
 require 'opal'
 require 'opal-jquery'
 require 'opal-haml'
