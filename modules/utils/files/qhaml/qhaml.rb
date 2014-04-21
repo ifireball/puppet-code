@@ -10,32 +10,48 @@ require 'sinatra'
 require 'sprockets'
 require 'sinatra/asset_pipeline'
 
+use Rack::Session::Pool
+
+before do
+  attrs = %w{
+    src page_format script_src script_format style_src style_format
+  }.map &:to_sym
+  defaults = {
+    :page_format => 'HAML',
+    :script_format => 'OPAL',
+    :style_format => 'CSS',
+  }
+  @project = Hash[attrs.map do |attr|
+    [attr, session[attr] || 
+     (erb(:"default_#{attr}", :layout => false) rescue nil) ||
+     defaults[attr] || ""
+    ]
+  end]
+end
+
+after do
+  @project.each do |attr, value|
+    session[attr] = value
+  end
+end
+
 get '/' do
   haml :frameset, :layout => false
 end
 
 get '/editor' do
-  @skel = skel
   haml :editor
 end
 
 get '/viewer' do
-  haml :viewer
+  page_viewer
 end
 
 post '/viewer' do
-  @source = params[:src]
-  @language = params[:language]
-  case @language
-  when 'OPAL'
-    @compiler = Opal::Compiler.new
-    @compiler.requires << 'opal' << 'opal-jquery'
-    @script = @compiler.compile @source
-    @wrapper = @compiler.compile erb(:opal_wrapper, :layout => false)
-    haml :opal_evaluator
-  else
-    haml @source, :layout => false
+  @project.keys.each do |attr|
+    @project[attr] = params[attr]
   end
+  page_viewer
 end
 
 get '/style' do
@@ -60,6 +76,7 @@ configure do
   set :port, 1234
   set :sprockets, Opal::Environment.new
   set :digest_assets, true
+  set :session_secret, 'QHaml secret'
 end
 
 module Sinatra
@@ -67,16 +84,8 @@ module Sinatra
 end
 
 helpers do
-  def skel
-    '!!!
-%html
-  %head
-    %title Simple Bootstrap Page
-    %meta{:content => "width=device-width, initial-scale=1.0", :name => "viewport"}
-    %script{:src => "//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1-beta1/jquery.min.js"}
-    %link{:rel => "stylesheet", :href => "//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css"}
-    %script{:src => "//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"}
-  %body'
+  def page_viewer
+    haml @project[:src], :layout => !@project[:src].match(/\A\s*!!!/)
   end
 end
 
@@ -138,7 +147,7 @@ __END__
           .form-group
             %input.form-control.btn.btn-default{:type => 'submit', :value => 'Evaluate'}
   .app-layout-content
-    %textarea.main-editor{:name => :src, :rows => 10}= @skel
+    %textarea.main-editor{:name => :src, :rows => 10}= @project[:src]
 :javascript
   $(document).ready(function() {
     CodeMirror.fromTextArea($('textarea.main-editor').get(0), {
@@ -148,7 +157,7 @@ __END__
     });
   });
  
-@@viewer
+@@default_src
 .container 
   .row
     .jumbotron
