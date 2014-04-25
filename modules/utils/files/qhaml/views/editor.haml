@@ -1,0 +1,35 @@
+%form.app-layout{:method => "post", :action => "/viewer", :target => "viewer"}
+  .navbar.navbar-default.app-layout-navbar
+    .container-fluid
+      .navbar-header
+        %button.navbar-toggle{:type => 'button', :data => {:toggle => 'collapse', :target => '#navbar-collapse'}}
+          %span.sr-only Toggle Navigation
+          %span.icon-bar
+          %span.icon-bar
+          %span.icon-bar
+        %span.navbar-brand QHaml
+      .collapse.navbar-collapse#navbar-collapse
+        .navbar-form.navbar-left
+          .form-group
+            %input.form-control.btn.btn-default{:type => 'reset', :value => 'Clear'}
+          .form-group
+            %label.control-label.sr-only{:for => 'language'}
+              Language:
+            %select.form-control#language{:name => 'language'}
+              %option{:selected => true} HAML
+              %option OPAL
+        .navbar-form.navbar-right
+          .form-group
+            %input.form-control.btn.btn-default{:type => 'submit', :value => 'Evaluate'}
+  .app-layout-content
+    %textarea.main-editor{:name => :src, :rows => 10}= @project[:src]
+:javascript
+  $(document).ready(function() {
+    CodeMirror.fromTextArea($('textarea.main-editor').get(0), {
+      mode: "text/x-haml",
+      vimMode: true,
+      lineNumbers: true,
+    });
+  });
+ 
+

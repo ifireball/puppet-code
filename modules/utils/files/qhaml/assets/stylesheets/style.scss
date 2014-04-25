@@ -1,0 +1,45 @@
+//=require app-layout
+
+.app-layout {
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  width: auto;
+  height: auto;
+  overflow: hidden;
+}
+.app-layout-navbar {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  right: 0px;
+  width: auto;
+  height: 50px;
+  overflow: hidden;
+}
+.app-layout-content {
+  position: absolute;
+  left: 0px;
+  top: 50px;
+  right: 0px;
+  bottom: 0px;
+  width: auto;
+  height: auto;
+  overflow: hidden;
+}
+.CodeMirror {
+  height: 100%;
+  width:100%;
+}
+.main-editor {
+  font-family: monospace;
+  height: 100%;
+  width:100%;
+  resize: none;
+  border: none;
+  overflow: auto;
+}
+
+
