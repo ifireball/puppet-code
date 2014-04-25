@@ -1,35 +1,82 @@
-%form.app-layout{:method => "post", :action => "/viewer", :target => "viewer"}
-  .navbar.navbar-default.app-layout-navbar
-    .container-fluid
-      .navbar-header
-        %button.navbar-toggle{:type => 'button', :data => {:toggle => 'collapse', :target => '#navbar-collapse'}}
-          %span.sr-only Toggle Navigation
+%form.app-layout.app-layout-toolbar{:method => "post", :action => "/viewer", :target => "viewer"}
+  .app-layout-tools
+    .navbar.navbar-default.navbar-nocollapse
+      .container-fluid
+        .navbar-header
+          %a.navbar-brand.hidden-520(href="#") QHaml
+        %button.navbar-toggle.visible-440-block.hidden-else{:type=>:button, :data => {:toggle=>:tab, :target=>"#editor-narrow-nav"}}
+          %span.sr-only Toggle navigation
           %span.icon-bar
           %span.icon-bar
           %span.icon-bar
-        %span.navbar-brand QHaml
-      .collapse.navbar-collapse#navbar-collapse
-        .navbar-form.navbar-left
-          .form-group
-            %input.form-control.btn.btn-default{:type => 'reset', :value => 'Clear'}
-          .form-group
-            %label.control-label.sr-only{:for => 'language'}
-              Language:
-            %select.form-control#language{:name => 'language'}
-              %option{:selected => true} HAML
-              %option OPAL
         .navbar-form.navbar-right
           .form-group
-            %input.form-control.btn.btn-default{:type => 'submit', :value => 'Evaluate'}
-  .app-layout-content
-    %textarea.main-editor{:name => :src, :rows => 10}= @project[:src]
-:javascript
-  $(document).ready(function() {
-    CodeMirror.fromTextArea($('textarea.main-editor').get(0), {
-      mode: "text/x-haml",
-      vimMode: true,
-      lineNumbers: true,
-    });
-  });
- 
+            %button.form-control.btn.btn-default{:type=>:submit, :title=>"Evaluate Code"}
+              %span.glyphicon.glyphicon-refresh
+              %span.hidden-640 Evaluate
+        %ul.nav.navbar-nav.navbar-left.collapse-noactive.hidden-360
+          %li.active
+            .fakea{:data=>{:target=>"#editor-page", :toggle=>"tab"}, :title=>"Edit page markup"}
+              %a(href="#") 
+                %span.glyphicon.glyphicon-file.visible-640-inline.hidden-else
+                %span.hidden-640 Page
+              %select.invisible-control.hidden-noactive-inline-xs(name="page-format" title="Select markup language")
+                %option(selected) HAML
+                %option HTML
+          %li
+            .fakea{:data=>{:target=>"#editor-script", :toggle=>"tab"}, :title=>"Edit page script"}
+              %a(href="#") 
+                %span.glyphicon.glyphicon-list-alt.visible-640-inline.hidden-else
+                %span.hidden-640 Script
+              %select.invisible-control.hidden-noactive-inline-xs(name="script-format" title="Select script language")
+                %option(selected) OPAL
+                %option JavaScript
+          %li
+            .fakea{:data=>{:target=>"#editor-style", :toggle=>"tab"}, :title=>"Edit page style"}
+              %a(href="#") 
+                %span.glyphicon.glyphicon-picture.visible-640-inline.hidden-else
+                %span.hidden-640 Style
+              %select.invisible-control.hidden-noactive-inline-xs(name="style-format" title="Select styling language")
+                %option(selected) CSS
+                %option SCSS
+                %option LESS
+        %ul.nav.navbar-nav.navbar-right.collapse-noactive.hidden-440
+          %li
+            %a(href="#editor-load" data-toggle="tab" title="Save/Load")
+              %span.glyphicon.glyphicon-floppy-disk
+              %span.hidden-sm.hidden-xs.visible-360-inline Save/Load
+          %li
+            %a(href="#editor-insert" data-toggle="tab" title="Add")
+              %span.glyphicon.glyphicon-plus
+              %span.hidden-sm.hidden-xs.visible-360-inline Add
+          %li
+            %a(href="#editor-settings" data-toggle="tab" title="Settings")
+              %span.glyphicon.glyphicon-cog
+              %span.hidden-sm.hidden-xs.visible-360-inline Settings
+  .app-layout-content.tab-content
+    .tab-pane.active#editor-page
+      %textarea.main-editor{:name => :src, :rows => 10}= @project[:src]
+    .tab-pane#editor-script
+      %textarea.main-editor{:name => :script_src, :rows => 10}= @project[:script_src]
+    .tab-pane#editor-style
+      %textarea.main-editor{:name => :style_src, :rows => 10}= @project[:style_src]
+    .tab-pane#editor-insert
+    .tab-pane#editor-load
+    .tab-pane#editor-settings
+    .tab-pane#editor-narrow-nav
+      .container-fluid
+        %ul.nav.nav-pills.nav-stacked
+          %li.active
+            %a(href="#editor-page" data-toggle="tab")  Page
+          %li
+            %a(href="#editor-script" data-toggle="tab") Script
+          %li
+            %a(href="#editor-style" data-toggle="tab") Style
+          %li
+            %a(href="#editor-insert" data-toggle="tab") Add Contenct
+          %li
+            %a(href="#editor-load" data-toggle="tab") Save/Load
+          %li
+            %a(href="#editor-settings" data-toggle="tab") Settings
+= javascript_tag "editor" 
 
