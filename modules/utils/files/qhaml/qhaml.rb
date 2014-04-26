@@ -87,6 +87,26 @@ helpers do
   def page_viewer
     haml @project[:src], :layout => !@project[:src].match(/\A\s*!!!/)
   end
+  def main_editor(editor_for)
+    name, content, format = case editor_for
+      when :page then [:src, @project[:src], @project[:page_format]]
+      else [:"#{editor_for}_src", @project[:"#{editor_for}_src"], 
+            @project[:"#{editor_for}_format"]]
+    end
+    haml :main_editor, :layout => false,
+      :locals => Hash[(local_variables - [:_]).map {|v| [v,eval(v.to_s)]}]
+  end
+  def language_selector(select_for)
+    name = :"#{select_for}_format"
+    value = @project[name]
+    options, title = {
+      :page   => [%w{HAML HTML}, "Select markup language"],
+      :script => [%w{OPAL JavaScript}, "Select script language"],
+      :style  => [%w{CSS SCSS LESS}, "Select styling language"],
+    }[select_for]
+    haml :language_selector, :layout => false, 
+      :locals => Hash[(local_variables - [:_]).map {|v| [v,eval(v.to_s)]}]
+  end
 end
 
 __END__
@@ -97,6 +117,14 @@ __END__
     .jumbotron
       %h1 QHaml
       %p Just type HAML into the form below and click submit
+
+@@main_editor
+%textarea.main-editor{:name => name, :rows => 10, :data => {:format => format}}= content
+
+@@language_selector
+%select.invisible-control.hidden-noactive-inline-xs{:name => name, :title => title}
+  - options.each do |option|
+    %option{:selected => (value == option)}= option
 
 @@opal_wrapper
 require 'opal'

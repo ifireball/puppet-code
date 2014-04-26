@@ -20,26 +20,19 @@
               %a(href="#") 
                 %span.glyphicon.glyphicon-file.visible-640-inline.hidden-else
                 %span.hidden-640 Page
-              %select.invisible-control.hidden-noactive-inline-xs(name="page-format" title="Select markup language")
-                %option(selected) HAML
-                %option HTML
+              != language_selector(:page)
           %li
             .fakea{:data=>{:target=>"#editor-script", :toggle=>"tab"}, :title=>"Edit page script"}
               %a(href="#") 
                 %span.glyphicon.glyphicon-list-alt.visible-640-inline.hidden-else
                 %span.hidden-640 Script
-              %select.invisible-control.hidden-noactive-inline-xs(name="script-format" title="Select script language")
-                %option(selected) OPAL
-                %option JavaScript
+              != language_selector(:script)
           %li
             .fakea{:data=>{:target=>"#editor-style", :toggle=>"tab"}, :title=>"Edit page style"}
               %a(href="#") 
                 %span.glyphicon.glyphicon-picture.visible-640-inline.hidden-else
                 %span.hidden-640 Style
-              %select.invisible-control.hidden-noactive-inline-xs(name="style-format" title="Select styling language")
-                %option(selected) CSS
-                %option SCSS
-                %option LESS
+              != language_selector(:style)
         %ul.nav.navbar-nav.navbar-right.collapse-noactive.hidden-440
           %li
             %a(href="#editor-load" data-toggle="tab" title="Save/Load")
@@ -55,11 +48,11 @@
               %span.hidden-sm.hidden-xs.visible-360-inline Settings
   .app-layout-content.tab-content
     .tab-pane.active#editor-page
-      %textarea.main-editor{:name => :src, :rows => 10}= @project[:src]
+      != main_editor(:page)
     .tab-pane#editor-script
-      %textarea.main-editor{:name => :script_src, :rows => 10}= @project[:script_src]
+      != main_editor(:script)
     .tab-pane#editor-style
-      %textarea.main-editor{:name => :style_src, :rows => 10}= @project[:style_src]
+      != main_editor(:style)
     .tab-pane#editor-insert
     .tab-pane#editor-load
     .tab-pane#editor-settings
