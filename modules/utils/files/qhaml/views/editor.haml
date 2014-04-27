@@ -54,9 +54,50 @@
     .tab-pane#editor-style
       != main_editor(:style)
     .tab-pane#editor-insert
-    .tab-pane#editor-load
+    .tab-pane.scrolled#editor-load
+      .container-fluid
+        .row
+          .col-sm-4
+            %h1 Save
+            %p Enter name to save current project
+            .form-group
+              %label(for="project-name") Project Name
+              %input.form-control(type="text" name="project-name" id="Project-name"
+                placeholder="Enter project name")
+            .form-group
+              %button.btn.btn-primary(type="submit" name="action" value="save"
+                title="Save project") Save
+          .col-sm-8
+            %h1 Load
+            %p Select project to load or use the "delete" button to delete an unneeded project.
+            %p.alert.alert-warning
+              %strong Warning!
+              Loading a project will discard unsaved changes to current project
+            %table.table.table-hover
+              %thead
+                %tr
+                  %th Project Name
+                  %th Last Modified
+                  %th
+              %tbody
+                %tr
+                  %td
+                    %a(title="Load Project1") Project1
+                  %td
+                    %a(title="Load Project1") 24, Apr, 2014
+                  %td
+                    %botton.btn.btn-danger.btn-xs(type="submit" name="delete" 
+                      value="Project1" title="Delete Project1") Delete
+                %tr
+                  %td
+                    %a(title="Load Project2") Project2
+                  %td
+                    %a(title="Load Project2") 24, Apr, 2014
+                  %td
+                    %botton.btn.btn-danger.btn-xs(type="submit" name="delete" 
+                      value="Project2" title="Delete Project2") Delete
     .tab-pane#editor-settings
-    .tab-pane#editor-narrow-nav
+    .tab-pane.scrolled#editor-narrow-nav
       .container-fluid
         %ul.nav.nav-pills.nav-stacked
           %li.active
