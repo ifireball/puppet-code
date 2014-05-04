@@ -62,8 +62,8 @@
             %p Enter name to save current project
             .form-group
               %label(for="project-name") Project Name
-              %input.form-control(type="text" name="project-name" id="Project-name"
-                placeholder="Enter project name")
+              %input.form-control(type="text" name="name" id="Project-name"
+                placeholder="Enter project name"){:value => @project[:name]}
             .form-group
               %button.btn.btn-primary(type="submit" name="action" value="save"
                 title="Save project") Save

@@ -9,30 +9,34 @@ require 'opal-haml'
 require 'sinatra'
 require 'sprockets'
 require 'sinatra/asset_pipeline'
-
-use Rack::Session::Pool
+require 'sequel'
 
 before do
   attrs = %w{
-    src page_format script_src script_format style_src style_format
+    page_src page_format script_src script_format style_src style_format
   }.map &:to_sym
   defaults = {
     :page_format => 'HAML',
     :script_format => 'OPAL',
     :style_format => 'CSS',
   }
-  @project = Hash[attrs.map do |attr|
-    [attr, session[attr] || 
-     (erb(:"default_#{attr}", :layout => false) rescue nil) ||
-     defaults[attr] || ""
-    ]
-  end]
+  @user = User[session[:user_id]] || User[:name => '<dummy>'] ||
+    User.new(:name => '<dummy>', :password => '<dummy>')
+  @project = @user.last_project ||=
+    Project.new(:name => 'Unnamed project', :temporary => true).
+    set(Hash[attrs.map do |attr|
+      [attr, (erb(:"default_#{attr}", :layout => false) rescue nil) ||
+        defaults[attr] || ""
+      ]
+    end]).save
+  if @user.modified?
+    @user.save 
+    @project.update(:user_id => @user.id)
+  end
 end
 
 after do
-  @project.each do |attr, value|
-    session[attr] = value
-  end
+  session[:user_id] = @user.id
 end
 
 get '/' do
@@ -48,9 +52,13 @@ get '/viewer' do
 end
 
 post '/viewer' do
-  @project.keys.each do |attr|
-    @project[attr] = params[attr]
-  end
+  @project.update_fields(
+    params,
+    %w{
+      page_src page_format script_src script_format style_src style_format name
+    }.map(&:to_sym),
+    :missing => :skip,
+  )
   page_viewer
 end
 
@@ -80,19 +88,19 @@ module Sinatra
 end
 
 configure :development do
+  set :db, Sequel.connect('mysql2://qhaml:qhaml@localhost/qhaml')
   Sprockets::Helpers.expand = true
+  require 'model'
 end
 
 helpers do
   def page_viewer
-    haml @project[:src], :layout => !@project[:src].match(/\A\s*!!!/)
+    haml @project[:page_src], :layout => !@project[:page_src].match(/\A\s*!!!/)
   end
   def main_editor(editor_for)
-    name, content, format = case editor_for
-      when :page then [:src, @project[:src], @project[:page_format]]
-      else [:"#{editor_for}_src", @project[:"#{editor_for}_src"], 
-            @project[:"#{editor_for}_format"]]
-    end
+    name    = :"#{editor_for}_src"
+    content = @project[:"#{editor_for}_src"]
+    format  = @project[:"#{editor_for}_format"]
     haml :main_editor, :layout => false,
       :locals => Hash[(local_variables - [:_]).map {|v| [v,eval(v.to_s)]}]
   end
@@ -111,7 +119,7 @@ end
 
 __END__
 
-@@default_src
+@@default_page_src
 .container 
   .row
     .jumbotron
