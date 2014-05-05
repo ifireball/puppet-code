@@ -12,19 +12,18 @@ require 'sinatra/asset_pipeline'
 require 'sequel'
 
 before do
-  attrs = %w{
-    page_src page_format script_src script_format style_src style_format
-  }.map &:to_sym
+  # TODO: Move defaults to model
   defaults = {
     :page_format => 'HAML',
     :script_format => 'OPAL',
     :style_format => 'CSS',
+    :name => 'Unnamed project',
   }
   @user = User[session[:user_id]] || User[:name => '<dummy>'] ||
     User.new(:name => '<dummy>', :password => '<dummy>')
   @project = @user.last_project ||=
-    Project.new(:name => 'Unnamed project', :temporary => true).
-    set(Hash[attrs.map do |attr|
+    Project.new(:temporary => true).
+    set(Hash[Project.editable_columns.map do |attr|
       [attr, (erb(:"default_#{attr}", :layout => false) rescue nil) ||
         defaults[attr] || ""
       ]
@@ -51,15 +50,22 @@ get '/viewer' do
   page_viewer
 end
 
-post '/viewer' do
-  @project.update_fields(
-    params,
-    %w{
-      page_src page_format script_src script_format style_src style_format name
-    }.map(&:to_sym),
-    :missing => :skip,
-  )
-  page_viewer
+post '/action' do
+  @project.update_fields_from(params)
+  case params[:action]
+  when 'save'
+    saved = @user.saved_projects_dataset.where(:name => params[:name]).first || 
+      Project.new(:temporary => false, :user => @user)
+    saved.set_fields_from(@project)
+    saved.save
+  end
+  redirect to('/viewer')
+end
+
+get '/load/:project_id' do |project_id|
+  loaded = @user.saved_projects_dataset[project_id] or halt 404 #TODO: error page
+  @project.update_fields_from(loaded)
+  redirect to('/')
 end
 
 get %r{^/__opal_source_maps__/(.*)} do 
@@ -94,6 +100,9 @@ configure :development do
 end
 
 helpers do
+  def h(text)
+    Rack::Utils.escape_html(text)
+  end
   def page_viewer
     haml @project[:page_src], :layout => !@project[:page_src].match(/\A\s*!!!/)
   end
@@ -114,6 +123,16 @@ helpers do
     }[select_for]
     haml :language_selector, :layout => false, 
       :locals => Hash[(local_variables - [:_]).map {|v| [v,eval(v.to_s)]}]
+  end
+  def project_link(project, display_str = nil)
+    "<a href=\"#{url("/load/" + project.id.to_s)}\" " + 
+      "target=\"_top\"" +
+      "title=\"Load project: #{project.name}\">" + 
+      h(display_str || project.name) +
+    "</a>"
+  end
+  def date_format(date)
+    date.strftime("%h %d, %Y, %H:%M")
   end
 end
 

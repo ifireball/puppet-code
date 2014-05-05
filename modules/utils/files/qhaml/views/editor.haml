@@ -1,17 +1,20 @@
-%form.app-layout.app-layout-toolbar{:method => "post", :action => "/viewer", :target => "viewer"}
+%form.app-layout.app-layout-toolbar{:method => "post", 
+  :action => url("/action"), :target => "viewer"}
   .app-layout-tools
     .navbar.navbar-default.navbar-nocollapse
       .container-fluid
         .navbar-header
           %a.navbar-brand.hidden-520(href="#") QHaml
-        %button.navbar-toggle.visible-440-block.hidden-else{:type=>:button, :data => {:toggle=>:tab, :target=>"#editor-narrow-nav"}}
+        %button.navbar-toggle.visible-440-block.hidden-else{:type=>:button, 
+          :data => {:toggle=>:tab, :target=>"#editor-narrow-nav"}}
           %span.sr-only Toggle navigation
           %span.icon-bar
           %span.icon-bar
           %span.icon-bar
         .navbar-form.navbar-right
           .form-group
-            %button.form-control.btn.btn-default{:type=>:submit, :title=>"Evaluate Code"}
+            %button.form-control.btn.btn-default{:type=>:submit, 
+              :name => 'action', :value => 'evaluate', :title=>"Evaluate Code"}
               %span.glyphicon.glyphicon-refresh
               %span.hidden-640 Evaluate
         %ul.nav.navbar-nav.navbar-left.collapse-noactive.hidden-360
@@ -69,33 +72,29 @@
                 title="Save project") Save
           .col-sm-8
             %h1 Load
-            %p Select project to load or use the "delete" button to delete an unneeded project.
-            %p.alert.alert-warning
-              %strong Warning!
-              Loading a project will discard unsaved changes to current project
-            %table.table.table-hover
-              %thead
-                %tr
-                  %th Project Name
-                  %th Last Modified
-                  %th
-              %tbody
-                %tr
-                  %td
-                    %a(title="Load Project1") Project1
-                  %td
-                    %a(title="Load Project1") 24, Apr, 2014
-                  %td
-                    %botton.btn.btn-danger.btn-xs(type="submit" name="delete" 
-                      value="Project1" title="Delete Project1") Delete
-                %tr
-                  %td
-                    %a(title="Load Project2") Project2
-                  %td
-                    %a(title="Load Project2") 24, Apr, 2014
-                  %td
-                    %botton.btn.btn-danger.btn-xs(type="submit" name="delete" 
-                      value="Project2" title="Delete Project2") Delete
+            - if @user.saved_projects.empty?
+              %p.alert.alert-info No saved projects (save something).
+            - else 
+              %p Select project to load or use the "delete" button to delete an unneeded project.
+              %p.alert.alert-warning
+                %strong Warning!
+                Loading a project will discard unsaved changes to current project
+              %table.table.table-hover
+                %thead
+                  %tr
+                    %th Project Name
+                    %th Last Modified
+                    %th
+                %tbody
+                  - @user.saved_projects.each do |project|
+                    %tr
+                      %td
+                        != project_link(project)
+                      %td
+                        != project_link(project, date_format(project.updated_at))
+                      %td
+                        %button.btn.btn-danger.btn-xs(type="submit" name="action-delete"
+                          title="Delete Project: #{project.name}"){:value => project.id} Delete
     .tab-pane#editor-settings
     .tab-pane.scrolled#editor-narrow-nav
       .container-fluid
