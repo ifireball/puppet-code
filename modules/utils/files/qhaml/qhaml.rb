@@ -12,6 +12,7 @@ require 'sinatra/asset_pipeline'
 require 'sequel'
 
 before do
+  settings.db.loggers << logger unless settings.db.loggers.include?(logger)
   # TODO: Move defaults to model
   defaults = {
     :page_format => 'HAML',
@@ -36,6 +37,7 @@ end
 
 after do
   session[:user_id] = @user.id
+  settings.db.loggers.delete(logger)
 end
 
 get '/' do
@@ -54,10 +56,10 @@ post '/action' do
   @project.update_fields_from(params)
   case params[:action]
   when 'save'
-    saved = @user.saved_projects_dataset.where(:name => params[:name]).first || 
-      Project.new(:temporary => false, :user => @user)
-    saved.set_fields_from(@project)
-    saved.save
+    @user.save_project(@project)
+  when 'evaluate'
+  else
+    @user.saved_projects_dataset[:id => params[:"action-delete"]].destroy
   end
   redirect to('/viewer')
 end
