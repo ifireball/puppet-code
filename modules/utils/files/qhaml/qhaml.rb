@@ -48,8 +48,28 @@ get '/editor' do
   haml :editor
 end
 
-get '/viewer' do
-  page_viewer
+get %r{/viewer(?:/(page|style|script))?} do |what|
+  what =  (what || :page).to_sym
+  src = @project[:"#{what}_src"]
+  format = @project[:"#{what}_format"]
+  content_type what
+  case format
+  when 'CSS'        then src
+  when 'SCSS'       then scss src
+  when 'LESS'       then less src
+  when 'OPAL'       then Opal.compile(src)
+  when 'JavaScript' then src
+  when 'HTML'
+    if src.match(/\A\s*<(DOCTYPE|html)/)
+      src
+    else
+      haml :"viewer-layout", :layout => false do
+        src 
+      end
+    end
+  when 'HAML'
+    haml src, :layout => (!src.match(/\A\s*!!!/) and :"viewer-layout")
+  end
 end
 
 post '/action' do
@@ -65,7 +85,7 @@ post '/action' do
 end
 
 get '/load/:project_id' do |project_id|
-  loaded = @user.saved_projects_dataset[project_id] or halt 404 #TODO: error page
+  loaded = @user.saved_projects_dataset[:id => project_id] or halt 404 #TODO: error page
   @project.update_fields_from(loaded)
   redirect to('/')
 end
@@ -89,6 +109,10 @@ configure do
   set :sprockets, Opal::Environment.new
   set :digest_assets, true
   set :session_secret, 'QHaml secret'
+
+  mime_type :page, 'text/html'
+  mime_type :style, 'text/css'
+  mime_type :script, 'application/javascript'
 end
 
 module Sinatra
@@ -104,9 +128,6 @@ end
 helpers do
   def h(text)
     Rack::Utils.escape_html(text)
-  end
-  def page_viewer
-    haml @project[:page_src], :layout => !@project[:page_src].match(/\A\s*!!!/)
   end
   def main_editor(editor_for)
     name    = :"#{editor_for}_src"
