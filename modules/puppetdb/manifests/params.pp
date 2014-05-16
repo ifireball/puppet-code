@@ -1,15 +1,4 @@
-# Class: puppetdb::params
-#
-#   The puppetdb configuration settings.
-#
-# Parameters:
-#
-# Actions:
-#
-# Requires:
-#
-# Sample Usage:
-#
+# The puppetdb default configuration settings.
 class puppetdb::params {
   $listen_address            = 'localhost'
   $listen_port               = '8080'
@@ -17,20 +6,8 @@ class puppetdb::params {
   $ssl_listen_address        = $::fqdn
   $ssl_listen_port           = '8081'
   $disable_ssl               = false
-  # This technically defaults to 'true', but in order to preserve backwards
-  # compatibility with the deprecated 'manage_redhat_firewall' parameter, we
-  # need to specify 'undef' as the default so that we can tell whether or
-  # not the user explicitly specified a value.  See implementation in
-  # `firewall.pp`.  We should change this back to `true` when we get rid
-  # of `manage_redhat_firewall`.
   $open_ssl_listen_port      = undef
   $postgres_listen_addresses = 'localhost'
-  # This technically defaults to 'true', but in order to preserve backwards
-  # compatibility with the deprecated 'manage_redhat_firewall' parameter, we
-  # need to specify 'undef' as the default so that we can tell whether or
-  # not the user explicitly specified a value.  See implementation in
-  # `postgresql.pp`.  We should change this back to `true` when we get rid
-  # of `manage_redhat_firewall`.
   $open_postgres_port        = undef
 
   $database                  = 'postgres'
@@ -41,6 +18,7 @@ class puppetdb::params {
   $database_name          = 'puppetdb'
   $database_username      = 'puppetdb'
   $database_password      = 'puppetdb'
+  $database_ssl           = false
 
   # These settings manage the various auto-deactivation and auto-purge settings
   $node_ttl               = '0s'
@@ -49,10 +27,12 @@ class puppetdb::params {
 
   $puppetdb_version       = 'present'
 
-  # TODO: figure out a way to make this not platform-specific
-  $manage_redhat_firewall = undef
-
   $gc_interval            = '60'
+
+  $log_slow_statements    = '10'
+  $conn_max_age           = '60'
+  $conn_keep_alive        = '45'
+  $conn_lifetime          = '0'
 
   case $::osfamily {
     'RedHat': {
@@ -100,7 +80,7 @@ class puppetdb::params {
     $embedded_subname     = 'file:/usr/share/puppetdb/db/db;hsqldb.tx=mvcc;sql.syntax_pgs=true'
 
     case $::osfamily {
-      'RedHat', 'Suse': {
+      'RedHat', 'Suse', 'Archlinux': {
         $puppetdb_initconf = '/etc/sysconfig/puppetdb'
       }
       'Debian': {
@@ -114,4 +94,5 @@ class puppetdb::params {
 
   $puppet_conf              = "${puppet_confdir}/puppet.conf"
   $puppetdb_startup_timeout = 120
+  $puppetdb_service_status  = 'running'
 }

@@ -4,6 +4,105 @@ Release notes for the puppetlabs-puppetdb module.
 
 ------------------------------------------
 
+#### 3.0.1 - 2014/02/11
+
+This release contains only minor bug fixes.
+
+Detailed Changes:
+
+* Add missing PUBLISHER_LOGIN variable for auto-publish. (Ashley Penney)
+* fix validation regular expressions for time configs (Scott Duckworth)
+* update ripienaar/concat -> puppetlabs/concat (Joshua Hoblitt)
+* Fix issue with validator when disable_ssl = true (Elliott Barrere)
+* Enable soft_write_failure setting when $puppetdb::disablessl = true (Elliott Barrere)
+* Support rspec-puppet v1.0.0 (Garrett Honeycutt)
+* Pin rspec-puppet to 1.x releases (Ken Barber)
+* Define parameter in puppetdb class to define postgres listen address (Adrian Lopez)
+* Enable fast finish in Travis (Garrett Honeycutt)
+* Convert tests to beaker (Ashley Penney)
+* Use the /v2 metrics endpoint instead of /metrics (Ken Barber)
+
+------------------------------------------
+
+#### 3.0.0 - 2013/10/27
+
+This major release changes the main dependency for the postgresql module from
+version 2.5.x to 3.x. Since the postgresql module is not backwards compatible,
+this release is also not backwards compatible. As a consequence we have taken
+some steps to deprecate some of the older functionality:
+
+* The parameter manage_redhat_firewall for the class puppetdb has now been removed completely in favor of open_postgres_port and open_ssl_listen_port.
+* The parameter manage_redhat_firewall for the class puppetdb::database::postgresql, has now been renamed to manage_firewall.
+* The parameter manage_redhat_firewall for the class puppetdb::server has now been removed completely in favor of open_listen_port and open_ssl_listen_port.
+* The internal class: puppetdb::database::postgresql_db has been removed. If you were using this, it is now defunct.
+* The class puppetdb::server::firewall has been marked as private, do not use it directly.
+* The class puppetdb::server::jetty_ini and puppetdb::server::database_ini have been marked as private, do not use it directly.
+
+All of this is documented in the upgrade portion of the README.
+
+Additionally some features have been included in this release as well:
+
+* soft_write_failure can now be enabled in your puppetdb.conf with this
+  module to handle failing silently when your PuppetDB is not available
+  during writes.
+* There is a new switch to enable SSL connectivity to PostgreSQL. While this
+  functionality is only in its infancy this is a good start.
+
+Detailed Changes:
+
+* FM-103: Add metadata.json to all modules. (Ashley Penney)
+* Add soft_write_failure to puppetdb.conf (Garrett Honeycutt)
+* Add switch to configure database SSL connection (Stefan Dietrich)
+* (GH-91) Update to use rspec-system-puppet 2.x (Ken Barber)
+* (GH-93) Switch to using puppetlabs-postgresql 3.x (Ken Barber)
+* Fix copyright and project notice (Ken Barber)
+* Adjust memory for PuppetDB tests to avoid OOM killer (Ken Barber)
+* Ensure ntpdate executes early during testing (Ken Barber)
+
+------------------------------------------
+
+#### 2.0.0 - 2013/10/04
+
+This major release changes the main dependency for the inifile module from
+the deprecated `cprice404/inifile` to `puppetlabs/inifile` to remove
+deprecation warnings and to move onto the latest and greatest implementation
+of that code.
+
+Its a major release, because it may affect other dependencies since modules
+cannot have overlapping second part dependencies (that is inifile cannot be from
+two different locations).
+
+It also adds the parameter `puppetdb_service_status` to the class `puppetdb` to
+allow users to specify whether the module manages the puppetdb service for you.
+
+The `database_password` parameter is now optional, and initial Arch Linux
+support has been added.
+
+Detailed Changes:
+
+* (GH-73) Switch to puppetlabs/inifile from cprice/inifile (Ken Barber)
+* Make database_password an optional parameter (Nick Lewis)
+* add archlinux support (Niels Abspoel)
+* Added puppetdb service control (Akos Hencz)
+
+------------------------------------------
+
+#### 1.6.0 - 2013/08/07
+
+This minor feature release provides extra parameters for new configuration
+items available in PuppetDB 1.4, and also provides some older parameters
+that were missed previously:
+
+* gc_interval
+* log_slow_statements
+* conn_max_age
+* conn_keep_alive
+* conn_lifetime
+
+Consult the README.md file, or the PuppetDB documentation for more details.
+
+------------------------------------------
+
 #### 1.5.0 - 2013/07/18
 
 This minor feature release provides the following new functionality:

@@ -6,6 +6,7 @@ puppetdb
 1. [Overview - What is the PuppetDB module?](#overview)
 2. [Module Description - What does the module do?](#module-description)
 3. [Setup - The basics of getting started with PuppetDB module](#setup)
+4. [Upgrading - Guide for upgrading from older revisions of this module](#upgrading)
 4. [Usage - The classes and parameters available for configuration](#usage)
 5. [Implementation - An under-the-hood peek at what the module is doing](#implementation)
 6. [Limitations - OS compatibility, etc.](#limitations)
@@ -29,10 +30,10 @@ Setup
 **What PuppetDB affects:**
 
 * package/service/configuration files for PuppetDB
-  * **note**: Using the `database_host` class will cause your routes.yaml file to be overwritten entirely (see **Usage** below for options and more information )
 * package/service/configuration files for PostgreSQL (optional, but set as default)
 * puppet master's runtime (via plugins)
 * puppet master's configuration
+  * **note**: Using the `puppetdb::master::config` class will cause your routes.yaml file to be overwritten entirely (see **Usage** below for options and more information )
 * system firewall (optional)
 * listened-to ports
 
@@ -135,6 +136,30 @@ Hence the failed puppet runs. These failures should be limited to 1 failed run o
 
 You can also manually trigger puppet runs on the nodes in the correct order (Postgres, PuppetDB, puppet master), which will avoid any failed runs.
 
+Upgrading
+---------
+
+###Upgrading from 2.x to version 3.x
+
+For this release a major dependency has changed. The module `pupppetlabs/postgresql` must now be version 3.x. Upgrading the module should upgrade the `puppetlabs/postgresql` module for you, but if another module has a fixed dependency that module will have to be fixed before you can continue.
+
+Some other changes include:
+
+* The parameter `manage_redhat_firewall` for the class `puppetdb` has now been removed completely in favor of `open_postgres_port` and `open_ssl_listen_port`.
+* The parameter `manage_redhat_firewall` for the class `puppetdb::database::postgresql`, has now been renamed to `manage_firewall`.
+* The parameter `manage_redhat_firewall` for the class `puppetdb::server` has now been removed completely in favor of `open_listen_port` and `open_ssl_listen_port`.
+* The internal class: `puppetdb::database::postgresql_db` has been removed. If you were using this, it is now defunct.
+* The class `puppetdb::server::firewall` has been marked as private, do not use it directly.
+* The class `puppetdb::server::jetty_ini` and `puppetdb::server::database_ini` have been marked as private, do not use it directly.
+
+###Upgrading from 1.x to version 2.x
+
+A major dependency has been changed, so now when you upgrade to 2.0 the dependency `cprice404/inifile` has been replaced with `puppetlabs/inifile`. This may interfer with other modules as they may depend on the old `cprice404/inifile` instead, so upgrading should be done with caution. Check that your other modules use the newer `puppetlabs/inifile` module as interoperation with the old `cprice404/inifile` module will no longer be supported by this module.
+
+Depending on how you install your modules, changing the dependency may require manual intervention. Double check your modules contains the newer `puppetlabs/inifile` after installing this latest module.
+
+Otherwise, all existing parameters from 1.x should still work correctly.
+
 Usage
 ------
 
@@ -197,6 +222,11 @@ The password for the database user (defaults to `puppetdb`; ignored for `embedde
 
 The name of the database instance to connect to (defaults to `puppetdb`; ignored for `embedded` db).
 
+####`database_ssl`
+
+If true, puppetdb will use SSL to connect to the postgres database (defaults to false; ignored for `embedded` db).
+Setting up proper trust- and keystores has to be managed outside of the puppetdb module.
+
 ####`node_ttl`
 
 The length of time a node can go without receiving any new data before it's automatically deactivated.  (defaults to '0', which disables auto-deactivation). This option is supported in PuppetDB >= 1.1.0.
@@ -208,6 +238,34 @@ The length of time a node can be deactivated before it's deleted from the databa
 ####`report_ttl`
 
 The length of time reports should be stored before being deleted. (defaults to '7d', which is a 7-day period). This option is supported in PuppetDB >= 1.1.0.
+
+####`gc_interval`
+
+This controls how often, in minutes, to compact the database. The compaction process reclaims space and deletes unnecessary rows. If not supplied, the default is every 60 minutes. This option is supported in PuppetDB >= 0.9.
+
+####`log_slow_statements`
+
+This sets the number of seconds before an SQL query is considered "slow." Slow SQL queries are logged as warnings, to assist in debugging and tuning. Note PuppetDB does not interrupt slow queries; it simply reports them after they complete.
+
+The default value is 10 seconds. A value of 0 will disable logging of slow queries. This option is supported in PuppetDB >= 1.1.
+
+####`conn_max_age`
+
+The maximum time (in minutes), for a pooled connection to remain unused before it is closed off.
+
+If not supplied, we default to 60 minutes. This option is supported in PuppetDB >= 1.1.
+
+####`conn_keep_alive`
+
+This sets the time (in minutes), for a connection to remain idle before sending a test query to the DB. This is useful to prevent a DB from timing out connections on its end.
+
+If not supplied, we default to 45 minutes. This option is supported in PuppetDB >= 1.1.
+
+####`conn_lifetime`
+
+The maximum time (in minutes) a pooled connection should remain open. Any connections older than this setting will be closed off. Connections currently in use will not be affected until they are returned to the pool.
+
+If not supplied, we won't terminate connections based on their age alone. This option is supported in PuppetDB >= 1.4.
 
 ####`puppetdb_package`
 
@@ -221,11 +279,9 @@ The version of the `puppetdb` package that should be installed.  You may specify
 
 The name of the puppetdb service.
 
-####`manage_redhat_firewall`
+####`puppetdb_service_status`
 
-*DEPRECATED: Use open_ssl_listen_port instead.*
-
-Supports a Boolean of true or false, indicating whether or not the module should open a port in the firewall on RedHat-based systems.  Defaults to `false`.  This parameter is likely to change in future versions. Possible changes include support for non-RedHat systems and finer-grained control over the firewall rule (currently, it simply opens up the postgres port to all TCP connections).
+Sets whether the service should be running or stopped. When set to stopped the service doesn't start on boot either. Valid values are 'true', 'running', 'false', and 'stopped'.
 
 ####`confdir`
 
@@ -274,6 +330,10 @@ The dns name or ip of the puppetdb server (defaults to the certname of the curre
 
 The port that the puppetdb server is running on (defaults to 8081).
 
+####`puppetdb_soft_write_failure`
+
+Boolean to fail in a soft-manner if PuppetDB is not accessable for command submission (defaults to false).
+
 ####`manage_routes`
 
 If true, the module will overwrite the puppet master's routes file to configure it to use PuppetDB (defaults to true).
@@ -309,6 +369,14 @@ Puppet's config file (defaults to `/etc/puppet/puppet.conf`).
 
 The version of the `puppetdb` package that should be installed. You may specify an explicit version number, 'present', or 'latest' (defaults to 'present').
 
+####`terminus_package`
+
+Name of the package to use that represents the PuppetDB terminus code.
+
+####`puppet_service_name`
+
+Name of the service that represents Puppet. You can change this to `apache2` or `httpd` depending on your operating system, if you plan on having Puppet run using Apache/Passenger for example.
+
 ####`puppetdb_startup_timeout`
 
 The maximum amount of time that the module should wait for PuppetDB to start up. This is most important during the initial install of PuppetDB (defaults to 15 seconds).
@@ -324,10 +392,25 @@ The `puppetdb::database::postgresql` class manages a postgresql server for use b
       listen_addresses => 'my.postgres.host.name',
     }
 
-The `listen_address` is a comma-separated list of hostnames or IP addresses on which the postgres server should listen for incoming connections. This defaults to `localhost`. This parameter maps directly to postgresql's `listen_addresses` config option; use a '*' to allow connections on any accessible address.
+####`listen_addresses`
 
-### puppetdb::database::postgresql_db
-The `puppetdb::database::postgresql_db` class sets up the puppetdb database and database user accounts. This is included from the `puppetdb::database::postgresql` class but can be used on its own if you want to use your own classes to configure the postgresql server itself in a way that the `puppetdb::database::postgresql` doesn't support.
+The `listen_address` is a comma-separated list of hostnames or IP addresses on which the postgres server should listen for incoming connections. This defaults to `localhost`. This parameter maps directly to postgresql's `listen_addresses` config option; use a `*` to allow connections on any accessible address.
+
+####`manage_firewall`
+
+If set to `true` this will enable open the local firewall for PostgreSQL protocol access. Defaults to `false`.
+
+####`database_name`
+
+Sets the name of the database. Defaults to `puppetdb`.
+
+####`database_username`
+
+Creates a user for access the database. Defaults to `puppetdb`.
+
+####`database_password`
+
+Sets the password for the database user above. Defaults to `puppetdb`.
 
 Implementation
 ---------------
@@ -350,18 +433,6 @@ Configures the puppet master to enable storeconfigs and to use PuppetDB as the s
 
     class { 'puppetdb::master::storeconfigs':
       puppet_conf => '/etc/puppet/puppet.conf'
-    }
-
-**puppetdb::server::database_ini**
-
-Manages PuppetDB's `database.ini` file.
-
-    class { 'puppetdb::server::database_ini':
-      database_host     => 'my.postgres.host',
-      database_port     => '5432',
-      database_username => 'puppetdb_pguser',
-      database_password => 'puppetdb_pgpasswd',
-      database_name     => 'puppetdb',
     }
 
 **puppetdb::server::validate_db**
@@ -392,6 +463,7 @@ Platforms:
 * RHEL6
 * Debian6
 * Ubuntu 10.04
+* Archlinux
 
 Development
 ------------

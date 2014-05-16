@@ -1,49 +1,29 @@
 {
-  "project_page": "https://github.com/puppetlabs/puppetlabs-puppetdb",
+  "name": "puppetlabs-puppetdb",
+  "version": "3.0.1",
   "summary": "PuppetDB resource types",
-  "checksums": {
-    "manifests/server/database_ini.pp": "42f6e288dd30c55e7c578ff35633fbbe",
-    "CHANGELOG": "8b85c45b1c1fffd120a44cc886d2b5ac",
-    "Gemfile": "7da7c2e85c77ae92821eaaf6f9788706",
-    "manifests/master/config.pp": "3e833811e94f15dfa8cca9664345e379",
-    "manifests/params.pp": "be13cbd9cbbd9fb898097495e7bbc618",
-    "LICENSE": "7d98b8235fa3c0bbb61378a5936e3c34",
-    "manifests/database/postgresql.pp": "9f57ba246dc117d714cb4922cd3b3f24",
-    "puppetlabs-puppetdb-1.4.0.tar.gz": "992f5ce12ff80011dcfa81bdb600e535",
-    "tests/pe-puppetdb-postgres.pp": "3ba559f10d499c28cd75fce799c84856",
-    "manifests/server/validate_db.pp": "2cc0fee0d0187362078a4a3883604885",
-    "manifests/master/report_processor.pp": "953fede8db1d9cf0812ff5e361c49f01",
-    "Rakefile": "790f004b3a18453229b93c23935a4681",
-    "lib/puppet/provider/puppetdb_conn_validator/puppet_https.rb": "17c55730cd42c64fe959f12a87a96085",
-    "Modulefile": "65b9d8e468926f248eebed0ec7cdc2c4",
-    "files/routes.yaml": "779d47e8d0c320b10f8c31cd9838fca1",
-    "manifests/database/postgresql_db.pp": "889667ef05ef869fad08eeaf09902a5d",
-    "manifests/master/routes.pp": "5c262ea0ef5471c1cd21b9a8a061774c",
-    "manifests/init.pp": "97e05070bef63c0c5bf4be127f75f44e",
-    "manifests/server/jetty_ini.pp": "553b852e54c43a8b207460975b880a0c",
-    "manifests/master/puppetdb_conf.pp": "67fa117f25435e2da664bd54eac993b9",
-    "README.md": "d5d035069f26a869ad4fe57b2c898fda",
-    "lib/puppet/parser/functions/puppetdb_create_subsetting_resource_hash.rb": "61b6f5ebc352e9bff5a914a43a14dc22",
-    "tests/puppetdb-postgres-distributed.pp": "6830e21b1e3a9cbacc7bb46f0a6dcf39",
-    "tests/puppetdb-postgres-on-master-node.pp": "f6b95af27654b31c9ae144bf5e73fdf2",
-    "manifests/server/firewall.pp": "e4ab29667a1674a915111e5dd8af7d58",
-    "Gemfile.lock": "ebd7cba230abe27620f2d5520deeb836",
-    "lib/puppet/type/puppetdb_conn_validator.rb": "aa4846110f363047a8988f261378ec0e",
-    "lib/puppet/util/puppetdb_validator.rb": "87dfd3cde4a06f898d88b9fda35c7dce",
-    "tests/puppetdb-embeddeddb-on-master-node.pp": "6577db13bd0a58e5d8bd8e541c3a9ccc",
-    "manifests/server.pp": "30f8f096396d61591ba8fd711f4755e4",
-    "manifests/master/storeconfigs.pp": "aa53b7abfc7b8d0b7468af1caf68dbf9"
-  },
-  "source": "git://github.com/puppetlabs/puppetlabs-puppetdb.git",
-  "version": "1.5.0",
+  "author": "Puppet Labs",
+  "description": "PuppetDB resource types",
+  "dependencies": [
+    {
+      "name": "puppetlabs/inifile",
+      "version_requirement": "1.x"
+    },
+    {
+      "name": "puppetlabs/postgresql",
+      "version_requirement": "\u003e\u003d 3.1.0 \u003c4.0.0"
+    },
+    {
+      "name": "puppetlabs/firewall",
+      "version_requirement": "\u003e\u003d 0.0.4"
+    },
+    {
+      "name": "puppetlabs/stdlib",
+      "version_requirement": "\u003e\u003d 2.2.0"
+    }
+  ],
   "types": [
     {
-      "providers": [
-        {
-          "name": "puppet_https",
-          "doc": "A provider for the resource type `puppetdb_conn_validator`,\n        which validates the puppetdb connection by attempting an https\n        connection to the puppetdb server.  Uses the puppet SSL certificate\n        setup from the local puppet environment to authenticate."
-        }
-      ],
       "parameters": [
         {
           "name": "name",
@@ -66,36 +46,68 @@
           "doc": "The max number of seconds that the validator should wait before giving up and deciding that puppetdb is not running; defaults to 15 seconds."
         }
       ],
-      "properties": [
+      "providers": [
         {
-          "name": "ensure",
-          "doc": "The basic property that the resource should be in.  Valid values are `present`, `absent`."
+          "name": "puppet_https",
+          "doc": "A provider for the resource type `puppetdb_conn_validator`,\n        which validates the puppetdb connection by attempting an https\n        connection to the puppetdb server.  Uses the puppet SSL certificate\n        setup from the local puppet environment to authenticate."
         }
       ],
       "name": "puppetdb_conn_validator",
       "doc": "Verify that a connection can be successfully established between a node\n          and the puppetdb server.  Its primary use is as a precondition to\n          prevent configuration changes from being applied if the puppetdb\n          server cannot be reached, but it could potentially be used for other\n          purposes such as monitoring."
     }
   ],
-  "author": "Puppet Labs",
-  "dependencies": [
-    {
-      "version_requirement": ">= 0.10.3",
-      "name": "cprice404/inifile"
-    },
-    {
-      "version_requirement": "2.x",
-      "name": "puppetlabs/postgresql"
-    },
-    {
-      "version_requirement": ">= 0.0.4",
-      "name": "puppetlabs/firewall"
-    },
-    {
-      "version_requirement": ">= 2.2.0",
-      "name": "puppetlabs/stdlib"
-    }
-  ],
-  "description": "PuppetDB resource types",
-  "license": "ASL 2.0",
-  "name": "puppetlabs-puppetdb"
+  "checksums": {
+    ".fixtures.yml": "3926414ec99fde0a3fe74445c8f36983",
+    ".forge-release/pom.xml": "c650a84961ad88de03192e23b63b3549",
+    ".forge-release/publish": "1c1d6dd64ef52246db485eb5459aa941",
+    ".forge-release/settings.xml": "06d768a57d582fe1ee078b563427e750",
+    ".forge-release/validate": "7fffde8112f42a1ec986d49ba80ac219",
+    ".nodeset.yml": "39216e7cf4325886864f76bfb6b567f6",
+    ".travis.yml": "53e9a9a97c0ded083dec55729bb0514e",
+    "CHANGELOG": "382baeb44bcc1af7f2027490c8c3dd35",
+    "Gemfile": "a7c9063e3ee1837efea3063b00f6a60f",
+    "Gemfile.lock": "c7bdde50ed0c617f3e2ed34fe8717b04",
+    "LICENSE": "3b83ef96387f14655fc854ddc3c6bd57",
+    "Modulefile": "708577aefa7becf31bed5fd2ca812bd6",
+    "NOTICE": "dd0cc848426aa3648e668269e7a04252",
+    "README.md": "0b168fe59aa1f041c44eb7755bc22112",
+    "Rakefile": "495ef3c10bd8f4bc88b15667db6faf0e",
+    "files/routes.yaml": "779d47e8d0c320b10f8c31cd9838fca1",
+    "lib/puppet/parser/functions/puppetdb_create_subsetting_resource_hash.rb": "61b6f5ebc352e9bff5a914a43a14dc22",
+    "lib/puppet/provider/puppetdb_conn_validator/puppet_https.rb": "17c55730cd42c64fe959f12a87a96085",
+    "lib/puppet/type/puppetdb_conn_validator.rb": "aa4846110f363047a8988f261378ec0e",
+    "lib/puppet/util/puppetdb_validator.rb": "765ed04231e92cb9806c7df6885730b6",
+    "manifests/database/postgresql.pp": "d7944858425f6cacb54ae8a46423bbd0",
+    "manifests/init.pp": "734082bfaa219de44b223db7927e9092",
+    "manifests/master/config.pp": "e73c81f3f784c2150609e267cfacfaf2",
+    "manifests/master/puppetdb_conf.pp": "344316acf5c256b13c2f76baaa15122f",
+    "manifests/master/report_processor.pp": "0bcf515ce1547166fb2aaeeea03d2108",
+    "manifests/master/routes.pp": "b3c370dd0e1e18e8db0b30be8aa10056",
+    "manifests/master/storeconfigs.pp": "7bb67d0559564a44bfb6740f967a3bc2",
+    "manifests/params.pp": "abbcec237f977061315f58fb3b4cc763",
+    "manifests/server.pp": "93f0fb6b792d41f62e72b7e80f1a5243",
+    "manifests/server/database_ini.pp": "bf8f6a936cdea3ec4c56bf3aefd8a8fa",
+    "manifests/server/firewall.pp": "c09a3c3b65e47353d1fcc98514faaead",
+    "manifests/server/jetty_ini.pp": "4207efbf3ce27c57921368ebe46f3701",
+    "manifests/server/validate_db.pp": "163c5a161b79839c1827cf3ba1f06d2c",
+    "spec/acceptance/basic_spec.rb": "1dc79ab81e00321c856e938d86b1f03e",
+    "spec/acceptance/nodesets/centos-510-x64.yml": "1d46d64ce99a84383ec22be396c54de7",
+    "spec/acceptance/nodesets/centos-59-x64.yml": "879c50ab100b927bdbbc130f23baaff7",
+    "spec/acceptance/nodesets/centos-64-x64-pe.yml": "ec075d95760df3d4702abea1ce0a829b",
+    "spec/acceptance/nodesets/centos-64-x64.yml": "b0038728e35983d45556de00e43798b4",
+    "spec/acceptance/nodesets/debian-607-x64.yml": "466d9ea1ed6b5557085aa8dcefd0d92d",
+    "spec/acceptance/nodesets/debian-73-x64.yml": "f6aac3ef7cb49d15781d68ab2ff8b03d",
+    "spec/acceptance/nodesets/default.yml": "b0038728e35983d45556de00e43798b4",
+    "spec/acceptance/nodesets/ubuntu-server-10044-x64.yml": "75e86400b7889888dc0781c0ae1a1297",
+    "spec/acceptance/nodesets/ubuntu-server-12042-x64.yml": "d30d73e34cd50b043c7d14e305955269",
+    "spec/spec_helper.rb": "a771010b8c0d35b06a9bf109bf8ec57f",
+    "spec/spec_helper_acceptance.rb": "aca5a7d5893cc8d52c675d7fea367a58",
+    "spec/unit/classes/init_spec.rb": "0ed1e806bde00ba412153adc914f6fc4",
+    "spec/unit/classes/master/report_processor_spec.rb": "53737dc7046f409768e803acaa37ba29",
+    "spec/unit/classes/server/jetty_ini_spec.rb": "cc90edb85d969d94e370826638b601c2",
+    "spec/unit/util/puppetdb_validator_spec.rb": "10bd6afe53a3ec73612884e36c9e3977"
+  },
+  "source": "git://github.com/puppetlabs/puppetlabs-puppetdb.git",
+  "project_page": "https://github.com/puppetlabs/puppetlabs-puppetdb",
+  "license": "ASL 2.0"
 }
